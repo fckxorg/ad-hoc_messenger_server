@@ -14,10 +14,16 @@
 
 mongocxx::database db;
 
-bool ValidateRequest(const crow::json::rvalue& request,
-                     const char* required_field) {
-    return request && request.has(required_field);
+template<typename... Args>
+bool ValidateFold(Args... args) {
+    return (args && ...);
 }
+
+template<typename... Args>
+bool ValidateRequest(const crow::json::rvalue& request, Args... args) {
+    return request && ValidateFold(request.has(args)...); 
+}
+
 
 int main() {
     mongocxx::instance instance{};
@@ -72,7 +78,8 @@ int main() {
         .methods("POST"_method)([](const crow::request& req) {
             crow::json::rvalue request = crow::json::load(req.body);
 
-            if (!ValidateRequest(request, "public_key") || !ValidateRequest(request, "handle")) {
+            if (!ValidateRequest(request, "public_key") ||
+                !ValidateRequest(request, "handle")) {
                 return crow::response(400);
             }
 
