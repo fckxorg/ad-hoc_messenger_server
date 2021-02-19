@@ -4,6 +4,7 @@
 #include <bsoncxx/builder/stream/document.hpp>
 #include <bsoncxx/builder/stream/helpers.hpp>
 #include <bsoncxx/json.hpp>
+#include <bsoncxx/stdx/string_view.hpp>
 #include <iostream>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
@@ -54,7 +55,8 @@ int main() {
             crow::json::wvalue response_body;
             if (maybe_result) {
                 response_body["status"] = "OK";
-                response_body["public_key"] = bsoncxx::to_json(*maybe_result);
+                bsoncxx::document::value found_user = *maybe_result;
+                response_body["payload"] = bsoncxx::stdx::string_view(found_user.view()["handle"].get_utf8()).data();
             } else {
                 response_body["status"] = "NULL";
             }
