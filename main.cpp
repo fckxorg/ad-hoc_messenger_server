@@ -1,4 +1,5 @@
 #include <crow_all.h>
+#include <stdarg.h>
 
 #include <bsoncxx/builder/stream/array.hpp>
 #include <bsoncxx/builder/stream/document.hpp>
@@ -71,8 +72,27 @@ int main() {
         .methods("POST"_method)([](const crow::request& req) {
             crow::json::rvalue request = crow::json::load(req.body);
 
-            if (!ValidateRequest(request, "public_key")) {
+            if (!ValidateRequest(request, "public_key") || !ValidateRequest(request, "handle")) {
                 return crow::response(400);
+            }
+
+            mongocxx::collection users = db["users"];
+
+            auto builder = bsoncxx::builder::stream::document{};
+            bsoncxx::document::value filter_document =
+                builder << "handle" << request["handle"].s()
+                        << bsoncxx::builder::stream::finalize;
+            bsoncxx::document::value update_document =
+                builder << "$set" << bsoncxx::builder::stream::open_document
+                        << "public_key" << request["public_key"].s()
+                        << bsoncxx::builder::stream::close_document
+                        << bsoncxx::builder::stream::finalize;
+
+            auto maybe_result = users.update_one(std::move(filter_document),
+                                                 std::move(update_document));
+
+            if (!maybe_result) {
+                return crow::response(404);
             }
 
             return crow::response(200);
