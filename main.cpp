@@ -54,9 +54,10 @@ int main() {
 
             crow::json::wvalue response_body;
             if (maybe_result) {
-                response_body["status"] = "OK";
                 bsoncxx::document::value found_user = *maybe_result;
-                response_body["payload"] = bsoncxx::stdx::string_view(found_user.view()["handle"].get_utf8()).data();
+
+                response_body["status"] = "OK";
+                response_body["payload"]["public_key"] = bsoncxx::stdx::string_view(found_user.view()["public_key"].get_utf8()).data();
             } else {
                 response_body["status"] = "NULL";
             }
