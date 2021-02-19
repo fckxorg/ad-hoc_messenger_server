@@ -1,8 +1,10 @@
+#include <iostream>
 #include <crow_all.h>
 
-#include <iostream>
+#include <mongocxx/instance.hpp>
 
 int main() {
+    mongocxx::instance instance{};
 
     crow::SimpleApp app;
 
