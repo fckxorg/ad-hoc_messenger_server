@@ -12,6 +12,11 @@
 
 mongocxx::database db;
 
+bool ValidateRequest(const crow::json::rvalue& request,
+                     const char* required_field) {
+    return request && request.has(required_field);
+}
+
 int main() {
     mongocxx::instance instance{};
     mongocxx::client client{mongocxx::uri{}};
@@ -28,32 +33,26 @@ int main() {
     //
     //========================================================================
 
-    CROW_ROUTE(app, "/")
-    ([]() { return "Get the fuck out of my room, I'm playing minecraft!"; });
-
     CROW_ROUTE(app, "/user/find")
         .methods("POST"_method)([](const crow::request& req) {
-            auto request = crow::json::load(req.body);
+            crow::json::rvalue request = crow::json::load(req.body);
 
-            if (!request || !request.has("handle")) {
+            if (!ValidateRequest(request, "handle")) {
                 return crow::response(400);
             }
-
-            std::cout << request["handle"] << std::endl;
 
             mongocxx::collection users = db["users"];
 
             auto filter_builder = bsoncxx::builder::stream::document{};
             bsoncxx::document::value filter_document =
                 filter_builder << "handle" << request["handle"].s()
-                        << bsoncxx::builder::stream::finalize;
+                               << bsoncxx::builder::stream::finalize;
 
             bsoncxx::stdx::optional<bsoncxx::document::value> maybe_result =
                 users.find_one(std::move(filter_document));
 
             crow::json::wvalue response_body;
             if (maybe_result) {
-
                 response_body["status"] = "OK";
                 response_body["public_key"] = bsoncxx::to_json(*maybe_result);
             } else {
@@ -66,9 +65,9 @@ int main() {
 
     CROW_ROUTE(app, "/key/update")
         .methods("POST"_method)([](const crow::request& req) {
-            auto request = crow::json::load(req.body);
+            crow::json::rvalue request = crow::json::load(req.body);
 
-            if (!request || !request.has("public_key")) {
+            if (!ValidateRequest(request, "public_key")) {
                 return crow::response(400);
             }
 
