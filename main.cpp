@@ -52,18 +52,19 @@ int main() {
             bsoncxx::stdx::optional<bsoncxx::document::value> maybe_result =
                 users.find_one(std::move(filter_document));
 
-            crow::json::wvalue response_body;
-            if (maybe_result) {
-                bsoncxx::document::value found_user = *maybe_result;
-
-                response_body["status"] = "OK";
-                response_body["payload"]["public_key"] = bsoncxx::stdx::string_view(found_user.view()["public_key"].get_utf8()).data();
-            } else {
-                response_body["status"] = "NULL";
+            if (!maybe_result) {
+                return crow::response(404);
             }
 
-            crow::response response(response_body.dump());
-            return response;
+            crow::json::wvalue response_body;
+            bsoncxx::document::value found_user = *maybe_result;
+
+            response_body["public_key"] =
+                bsoncxx::stdx::string_view(
+                    found_user.view()["public_key"].get_utf8())
+                    .data();
+
+            return crow::response(200, response_body.dump());
         });
 
     CROW_ROUTE(app, "/key/update")
