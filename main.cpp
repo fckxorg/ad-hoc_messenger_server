@@ -12,21 +12,13 @@
 #include <mongocxx/stdx.hpp>
 #include <mongocxx/uri.hpp>
 
+#include "request_helpers/request_helpers.hpp"
+
 using bsoncxx::builder::basic::document;
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
 
 mongocxx::database db;
-
-template <typename... Args>
-bool ValidateFold(Args... args) {
-    return (args && ...);
-}
-
-template <typename... Args>
-bool ValidateRequest(const crow::json::rvalue& request, Args... args) {
-    return request && ValidateFold(request.has(args)...);
-}
 
 int main() {
     mongocxx::instance instance{};
@@ -52,11 +44,11 @@ int main() {
                 return crow::response(400);
             }
 
-            bsoncxx::document::value filter_document =
+            bsoncxx::document::value filter =
                 make_document(kvp("handle", request["handle"].s()));
 
             mongocxx::collection users = db["users"];
-            auto maybe_result = users.find_one(std::move(filter_document));
+            auto maybe_result = users.find_one(std::move(filter));
 
             if (!maybe_result) {
                 return crow::response(404);
@@ -83,14 +75,14 @@ int main() {
 
             mongocxx::collection users = db["users"];
 
-            bsoncxx::document::value filter_document =
+            bsoncxx::document::value filter =
                 make_document(kvp("handle", request["handle"].s()));
-            bsoncxx::document::value update_document = make_document(kvp(
+            bsoncxx::document::value update = make_document(kvp(
                 "$set",
                 make_document(kvp("public_key", request["public_key"].s()))));
 
-            auto maybe_result = users.update_one(std::move(filter_document),
-                                                 std::move(update_document));
+            auto maybe_result =
+                users.update_one(std::move(filter), std::move(update));
 
             if (!maybe_result) {
                 return crow::response(404);

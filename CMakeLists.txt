@@ -12,14 +12,22 @@ find_package(ZLIB REQUIRED)
 find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
-include_directories(${LIBMONGOCXX_LIBRARIES})
-include_directories(${LIBBSONCXX_LIBRARIES})
-include_directories(${LIBMONGOCXX_INCLUDE_DIRS})
-include_directories(${LIBBSONCXX_INCLUDE_DIRS})
+set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
 
-target_link_libraries(main 
+target_include_directories(main 
+                           PUBLIC
+                           ${LIBMONGOCXX_LIBRARIES} 
+                           ${LIBBSONCXX_LIBRARIES}
+                           ${LIBMONGOCXX_INCLUDE_DIRS}
+                           ${LIBBSONCXX_INCLUDE_DIRS}
+                           ${INCROOT})
+
+
+
+target_link_libraries(main PUBLIC  
                      ${Boost_SYSTEM_LIBRARY} 
                      ${LIBBSONCXX_LIBRARIES} 
                      ${LIBMONGOCXX_LIBRARIES} 
                      pthread 
                      ZLIB::ZLIB) 
+
