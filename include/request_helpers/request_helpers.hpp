@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef REQUEST_HELPERS_HPP
+#define REQUEST_HELPERS_HPP
 
 #include <crow_all.h>
 
@@ -12,4 +13,4 @@ bool ValidateRequest(const crow::json::rvalue& request, Args... args) {
     return request && ValidateFold(request.has(args)...);
 }
 
-
+#endif

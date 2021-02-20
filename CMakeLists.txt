@@ -29,5 +29,8 @@ target_link_libraries(main PUBLIC
                      ${LIBBSONCXX_LIBRARIES} 
                      ${LIBMONGOCXX_LIBRARIES} 
                      pthread 
-                     ZLIB::ZLIB) 
+                     ZLIB::ZLIB
+                     handlers) 
+
+add_subdirectory(src/handlers)
 
