@@ -21,8 +21,8 @@ jobs:
       # Some projects don't allow in-source building, so create a separate build directory
       # We'll use this as our working directory for all subsequent commands
       run: cmake -E make_directory ${{github.workspace}}/build
-    - name: Installing Boost
-      run: sudo apt-get install libboost-all-dev
+    - name: Installing build packages
+      run: sudo apt-get install libboost-all-dev pkg-config libzstd-dev libssl-dev python
       # Now we need to install mongodb
     - name: Installing gnupg
       run: sudo apt-get install gnupg
@@ -36,9 +36,13 @@ jobs:
       run: sudo apt-get install -y mongodb-org
     - name: starting mongodb
       run: sudo systemctl start mongod
-    # installing libbson
+    
+    # installing libmongoc
     - name: Installing libmongoc
-      run: sudo apt-get install libmongoc-1.0.0
+      run: git clone https://github.com/mongodb/mongo-c-driver | mkdir ${{github.workspace}}/mongo-c-driver/build
+    - name: Installing libmongoc
+      working-directory: ${{github.workspace}}/mongo-c-driver/build
+      run: cmake .. | make
     
     # installing mongocxx driver
     - name: downloading the mongocxx driver
@@ -51,7 +55,7 @@ jobs:
       
     - name: configuring mongocxx
       working-directory: ${{github.workspace}}/mongo-cxx-driver-r3.6.2/build
-      run: cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DLIBMONGOC_DIR=/opt/mongo-c-driver -DLIBBSON_DIR=/opt/mongo-c-driver
+      run: cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
     - name: building and installing mongocxx
       working-directory: ${{github.workspace}}/mongo-cxx-driver-r3.6.2/build
       run: cmake --build . | sudo cmake --build . --target install
