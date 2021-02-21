@@ -25,15 +25,15 @@ set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
 
 add_subdirectory(src/handlers)
 
-if(NOT BUILD_TESTS)
-    set(CURRENT_TARGET main)
-    add_executable(${CURRENT_TARGET} src/main.cpp)
-else()
+if(BUILD_TESTS)
     set(CURRENT_TARGET test)
-    add_executable(${CURRENT_TARGET} test/run_tests.cpp)
+    add_executable(${CURRENT_TARGET} test/request_helpers_unittest.cpp)
     add_subdirectory(lib/googletest)
     target_include_directories(${CURRENT_TARGET} PUBLIC lib/googletest/googletest/include)
     target_link_libraries(${CURRENT_TARGET} PUBLIC gtest)
+else()
+    set(CURRENT_TARGET main)
+    add_executable(${CURRENT_TARGET} src/main.cpp)
 endif()
 
 target_include_directories(${CURRENT_TARGET} 

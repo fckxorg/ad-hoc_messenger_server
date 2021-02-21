@@ -1,2 +1,2 @@
 #!/bin/bash
-cd build && cmake .. && make
+cd build && cmake .. $1 && make
