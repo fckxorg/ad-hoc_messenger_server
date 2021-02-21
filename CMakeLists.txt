@@ -26,9 +26,10 @@ set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
 add_subdirectory(src/handlers)
 
 
-set(CURRENT_TARGET main)
+set(CURRENT_TARGET main.cpp)
 
-add_executable(${CURRENT_TARGET} main.cpp)
+add_executable(${CURRENT_TARGET} src/main.cpp)
+
 target_include_directories(${CURRENT_TARGET} 
                            PUBLIC
                             ${LIBMONGOCXX_LIBRARIES} 
