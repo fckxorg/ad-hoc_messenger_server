@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
-#include "handlers.hpp"
+
+TEST(OperatorPlusTest, PositiveArgs) {
+    EXPECT_EQ(5, 2 + 3);
+}
+
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
