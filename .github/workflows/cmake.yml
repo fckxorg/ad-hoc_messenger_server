@@ -39,7 +39,9 @@ jobs:
     
     # installing libmongoc
     - name: Installing libmongoc
-      run: git clone https://github.com/mongodb/mongo-c-driver | mkdir ${{github.workspace}}/mongo-c-driver/build
+      run: git clone https://github.com/mongodb/mongo-c-driver
+    - name: Installing libmongoc
+      run: mkdir ${{github.workspace}}/mongo-c-driver/build
     - name: Installing libmongoc
       working-directory: ${{github.workspace}}/mongo-c-driver/build
       run: cmake .. | make
