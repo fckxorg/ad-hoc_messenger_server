@@ -23,7 +23,19 @@ jobs:
       run: cmake -E make_directory ${{github.workspace}}/build
     - name: Installing Boost
       run: sudo apt-get install libboost-all-dev
-
+      # Now we need to install mongodb
+    - name: Installing gnupg
+      run: sudo apt-get install gnupg
+    - name: Importing mongodb keys
+      run: wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+    - name: Adding mongo repo to apt
+      run: echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+    - name: updating apt tree
+      run: sudo apt-get update
+    - name: installing mongodb
+      run: sudo apt-get install -y mongodb-org
+      
+      
     - name: Configure CMake
       # Use a bash shell so we can use the same syntax for environment variable
       # access regardless of the host operating system
