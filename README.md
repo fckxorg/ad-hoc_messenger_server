@@ -5,3 +5,8 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/fckxorg/ad-hoc_messenger_server)
 
 C++ server created on top of crow and mongodb
+
+##### Dependencies
+- Crow (https://github.com/fckxorg/crow)
+- mongocxx
+- bsoncxx
