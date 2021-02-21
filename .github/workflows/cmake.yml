@@ -36,6 +36,9 @@ jobs:
       run: sudo apt-get install -y mongodb-org
     - name: starting mongodb
       run: sudo systemctl start mongod
+    # installing libbson
+    - name: Installing BSON
+      run: sudo apt-get install libbson-1.0
     
     # installing mongocxx driver
     - name: downloading the mongocxx driver
