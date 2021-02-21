@@ -39,14 +39,21 @@ jobs:
     
     # installing mongocxx driver
     - name: downloading the mongocxx driver
-      run: curl -OL https://github.com/mongodb/mongo-cxx-driver/releases/download/r3.6.2/mongo-cxx-driver-r3.6.2.tar.gz  --output-dir ${{github.workspace}}
-          | tar -xzf ${{github.workspace}}/mongo-cxx-driver-r3.6.2.tar.gz -C ${{github.workspace}}
+      working-directory: ${{github.workspace}}
+      run: curl -OL https://github.com/mongodb/mongo-cxx-driver/releases/download/r3.6.2/mongo-cxx-driver-r3.6.2.tar.gz
+      
+    - name: downloading the mongocxx driver
+      working-directory: ${{github.workspace}}
+      run: tar -xzf ${{github.workspace}}/mongo-cxx-driver-r3.6.2.tar.gz
+      
     - name: configuring mongocxx
       working-directory: ${{github.workspace}}/mongo-cxx-driver-r3.6.2/build
       run: cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
     - name: building and installing mongocxx
       working-directory: ${{github.workspace}}/mongo-cxx-driver-r3.6.2/build
       run: cmake --build . | sudo cmake --build . --target install
+      
+      
       
       
     - name: Configure CMake
