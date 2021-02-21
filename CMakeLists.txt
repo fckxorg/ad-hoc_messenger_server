@@ -40,6 +40,8 @@ foreach(CURRENT_TARGET ${CURRENT_TARGETS})
         add_subdirectory(lib/googletest)
         target_include_directories(${CURRENT_TARGET} PUBLIC lib/googletest/googletest/include)
         target_link_libraries(${CURRENT_TARGET} PUBLIC gtest)
+
+        add_custom_command(TARGET ${CURRENT_TARGET} POST_BUILD COMMAND ${PROJECT_BINARY_DIR}/${CURRENT_TARGET})
     endif()
 
     target_include_directories(${CURRENT_TARGET} 
@@ -60,4 +62,6 @@ foreach(CURRENT_TARGET ${CURRENT_TARGETS})
                            pthread 
                            ZLIB::ZLIB
                            handlers) 
+
+    
 endforeach(CURRENT_TARGET)
