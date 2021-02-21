@@ -22,37 +22,42 @@ find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
+set(TEST_TARGETS request_helpers)
 
 add_subdirectory(src/handlers)
 
+
 if(BUILD_TESTS)
-    set(CURRENT_TARGET test)
-    add_executable(${CURRENT_TARGET} test/request_helpers_unittest.cpp)
-    add_subdirectory(lib/googletest)
-    target_include_directories(${CURRENT_TARGET} PUBLIC lib/googletest/googletest/include)
-    target_link_libraries(${CURRENT_TARGET} PUBLIC gtest)
+    set(CURRENT_TARGETS ${TEST_TARGETS})
 else()
-    set(CURRENT_TARGET main)
-    add_executable(${CURRENT_TARGET} src/main.cpp)
+    set(CURRENT_TARGETS main)
+    add_executable(${CURRENT_TARGETS} src/main.cpp)
 endif()
 
-target_include_directories(${CURRENT_TARGET} 
-                           PUBLIC
-                            ${LIBMONGOCXX_LIBRARIES} 
-                            ${LIBBSONCXX_LIBRARIES}
-                            ${LIBMONGOCXX_INCLUDE_DIRS}
-                            ${LIBBSONCXX_INCLUDE_DIRS}
-                            ${INCROOT})
+foreach(CURRENT_TARGET ${CURRENT_TARGETS})
+    if(BUILD_TESTS)
+        add_executable(${CURRENT_TARGET} test/${CURRENT_TARGET}_unittest.cpp)
+        add_subdirectory(lib/googletest)
+        target_include_directories(${CURRENT_TARGET} PUBLIC lib/googletest/googletest/include)
+        target_link_libraries(${CURRENT_TARGET} PUBLIC gtest)
+    endif()
+
+    target_include_directories(${CURRENT_TARGET} 
+                               PUBLIC
+                                ${LIBMONGOCXX_LIBRARIES} 
+                                ${LIBBSONCXX_LIBRARIES}
+                                ${LIBMONGOCXX_INCLUDE_DIRS}
+                                ${LIBBSONCXX_INCLUDE_DIRS}
+                                ${INCROOT})
 
 
 
-target_link_libraries(${CURRENT_TARGET} 
-                      PUBLIC  
-                       ${Boost_SYSTEM_LIBRARY} 
-                       ${LIBBSONCXX_LIBRARIES} 
-                       ${LIBMONGOCXX_LIBRARIES} 
-                       pthread 
-                       ZLIB::ZLIB
-                       handlers) 
-
-
+    target_link_libraries(${CURRENT_TARGET} 
+                          PUBLIC  
+                           ${Boost_SYSTEM_LIBRARY} 
+                           ${LIBBSONCXX_LIBRARIES} 
+                           ${LIBMONGOCXX_LIBRARIES} 
+                           pthread 
+                           ZLIB::ZLIB
+                           handlers) 
+endforeach(CURRENT_TARGET)
