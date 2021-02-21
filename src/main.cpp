@@ -1,4 +1,4 @@
-#define CROW_MAIN_
+#define CROW_MAIN_ // withouth this define multiple definiton error os likely to occur
 #include <crow_all.h>
 #include <stdarg.h>
 

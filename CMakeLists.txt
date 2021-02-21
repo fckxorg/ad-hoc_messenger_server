@@ -22,13 +22,14 @@ find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
-set(TEST_TARGETS request_helpers)
+set(TEST_TARGETS request_helpers handlers)
 
 add_subdirectory(src/handlers)
 
 
 if(BUILD_TESTS)
     set(CURRENT_TARGETS ${TEST_TARGETS})
+    add_subdirectory(lib/googletest)
 else()
     set(CURRENT_TARGETS main)
     add_executable(${CURRENT_TARGETS} src/main.cpp)
@@ -37,7 +38,6 @@ endif()
 foreach(CURRENT_TARGET ${CURRENT_TARGETS})
     if(BUILD_TESTS)
         add_executable(${CURRENT_TARGET} test/${CURRENT_TARGET}_unittest.cpp)
-        add_subdirectory(lib/googletest)
         target_include_directories(${CURRENT_TARGET} PUBLIC lib/googletest/googletest/include)
         target_link_libraries(${CURRENT_TARGET} PUBLIC gtest)
 
@@ -61,7 +61,7 @@ foreach(CURRENT_TARGET ${CURRENT_TARGETS})
                            ${LIBMONGOCXX_LIBRARIES} 
                            pthread 
                            ZLIB::ZLIB
-                           handlers) 
+                           libhandlers) 
 
     
 endforeach(CURRENT_TARGET)

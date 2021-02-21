@@ -1,3 +1,4 @@
+#define CROW_MAIN_
 #include <gtest/gtest.h>
 #include <crow_all.h>
 #include <cstring>
