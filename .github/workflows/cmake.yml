@@ -34,6 +34,18 @@ jobs:
       run: sudo apt-get update
     - name: installing mongodb
       run: sudo apt-get install -y mongodb-org
+    - name: starting mongodb
+      run: sudo systemctl start mongod
+    
+    # installing mongocxx driver
+    - name: downloading the mongocxx driver
+      run: curl -OL https://github.com/mongodb/mongo-cxx-driver/releases/download/r3.6.2/mongo-cxx-driver-r3.6.2.tar.gz 
+          | tar -xzf mongo-cxx-driver-r3.6.2.tar.gz
+    - name: configuring mongocxx
+      working-directory: ${{github.workspace}}/mongo-cxx-driver-r3.6.2/build
+      run: cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local
+    - name: building and installing mongocxx
+      run: cmake --build . | sudo cmake --build . --target install
       
       
     - name: Configure CMake
