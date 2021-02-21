@@ -9,12 +9,13 @@
 #include "handlers.hpp"
 
 mongocxx::instance instance{}; // intializing database
+
 //=================================================
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //              UserFindHandler Tests
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //=================================================
-//
+
 TEST(UserFindHandler, Success) {
     mongocxx::client client{mongocxx::uri{}};
     mongocxx::database test_db = client["messenger_db"];
@@ -54,6 +55,45 @@ TEST(UserFindHandler, UserNotFound) {
     test_request.method = "POST"_method;
 
     EXPECT_EQ(user_find_handler(test_request, test_db).code, 404);
+}
+
+//=================================================
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//              KeyUpdateHandler Tests
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//=================================================
+
+TEST(KeyUpdateHandler, Success) {
+    mongocxx::client client{mongocxx::uri{}};
+    mongocxx::database test_db = client["messenger_db"];
+
+    crow::request test_request{};
+    test_request.body = "{\"handle\": \"@fckxorg\", \"public_key\": \"new_key\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(key_update_handler(test_request, test_db).code, 200);
+}
+
+TEST(KeyUpdateHandler, InvalidJSON) {
+    mongocxx::client client{mongocxx::uri{}};
+    mongocxx::database test_db = client["messenger_db"];
+
+    crow::request test_request{};
+    test_request.body = "{\"handle\": \"@fckxorg\", \"pubic_key\": \"new_key\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(key_update_handler(test_request, test_db).code, 400);
+}
+
+TEST(KeyUpdateHandler, UserNotFound) {
+    mongocxx::client client{mongocxx::uri{}};
+    mongocxx::database test_db = client["messenger_db"];
+
+    crow::request test_request{};
+    test_request.body = "{\"handle\": \"@COFF33\", \"public_key\": \"new_key\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(key_update_handler(test_request, test_db).code, 404);
 }
 
 int main(int argc, char** argv) {

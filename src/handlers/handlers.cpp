@@ -47,7 +47,7 @@ crow::response key_update_handler(const crow::request& req,
     bsoncxx::document::value update = make_document(kvp(
         "$set", make_document(kvp("public_key", request["public_key"].s()))));
 
-    auto maybe_result = users.update_one(std::move(filter), std::move(update));
+    auto maybe_result = users.find_one_and_update(std::move(filter), std::move(update));
 
     if (!maybe_result) {
         return crow::response(404);
