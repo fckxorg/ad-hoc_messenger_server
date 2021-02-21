@@ -25,10 +25,10 @@ set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
 
 add_subdirectory(src/handlers)
 
-
-set(CURRENT_TARGET main.cpp)
-
-add_executable(${CURRENT_TARGET} src/main.cpp)
+if(NOT BUILD_TESTS)
+    set(CURRENT_TARGET main.cpp)
+    add_executable(${CURRENT_TARGET} src/main.cpp)
+endif()
 
 target_include_directories(${CURRENT_TARGET} 
                            PUBLIC
