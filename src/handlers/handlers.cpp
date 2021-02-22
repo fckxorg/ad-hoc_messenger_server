@@ -5,7 +5,7 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
 
 crow::response user_find_handler(const crow::request& req,
-                                 mongocxx::database& db) {
+                                 const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
     if (!ValidateRequest(request, "handle")) {
@@ -33,7 +33,7 @@ crow::response user_find_handler(const crow::request& req,
 }
 
 crow::response key_update_handler(const crow::request& req,
-                                 mongocxx::database& db) {
+                                  const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
     if (!ValidateRequest(request, "public_key", "handle")) {
@@ -47,7 +47,8 @@ crow::response key_update_handler(const crow::request& req,
     bsoncxx::document::value update = make_document(kvp(
         "$set", make_document(kvp("public_key", request["public_key"].s()))));
 
-    auto maybe_result = users.find_one_and_update(std::move(filter), std::move(update));
+    auto maybe_result =
+        users.find_one_and_update(std::move(filter), std::move(update));
 
     if (!maybe_result) {
         return crow::response(404);

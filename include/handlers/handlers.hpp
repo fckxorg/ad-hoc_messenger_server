@@ -15,7 +15,7 @@
 #include "request_helpers.hpp"
 
 crow::response user_find_handler(const crow::request& req,
-                                 mongocxx::database& db);
+                                 const mongocxx::database& db);
 crow::response key_update_handler(const crow::request& req,
-                                  mongocxx::database& db);
+                                  const mongocxx::database& db);
 #endif
