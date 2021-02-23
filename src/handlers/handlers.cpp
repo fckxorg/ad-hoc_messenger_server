@@ -8,7 +8,8 @@ crow::response user_find_handler(const crow::request& req,
                                  const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"), "Invalid JSON format");
+    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"),
+                         "Invalid JSON format");
 
     mongocxx::collection users = db["users"];
     bsoncxx::document::value filter_document =
@@ -30,7 +31,8 @@ crow::response key_update_handler(const crow::request& req,
                                   const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "public_key", "handle"), "Invalid JSON format");
+    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "public_key", "handle"),
+                         "Invalid JSON format");
 
     mongocxx::collection users = db["users"];
     bsoncxx::document::value filter =
@@ -51,8 +53,25 @@ crow::response message_send_handler(const crow::request& req,
                                     const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    THROW_BAD_REQUEST_IF(!ValidateRequest(
-        request, "sender", "reciever", "payload", "datetime", "encrypted_by"), "Invalid JSON format");
+    THROW_BAD_REQUEST_IF(
+        !ValidateRequest(request, "sender", "reciever", "payload", "datetime",
+                         "encrypted_by"),
+        "Invalid JSON format");
+
+    // checking users exist
+    mongocxx::collection users = db["users"];
+
+    bsoncxx::document::value filter_document =
+        make_document(kvp("handle", request["sender"].s()));
+    auto maybe_result = users.find_one(std::move(filter_document));
+
+    THROW_NOT_FOUND_IF(!maybe_result, "User not found");
+
+    filter_document =
+        make_document(kvp("handle", request["reciever"].s()));
+    maybe_result = users.find_one(std::move(filter_document));
+
+    THROW_NOT_FOUND_IF(!maybe_result, "User not found");
 
     std::istringstream time_sent(request["datetime"].s());
     std::tm parsed_time = {};
