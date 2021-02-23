@@ -1,4 +1,5 @@
-#define CROW_MAIN_ // withouth this define multiple definiton error os likely to occur
+#define CROW_MAIN_  // withouth this define multiple definiton error os likely
+                    // to occur
 #include <crow_all.h>
 #include <stdarg.h>
 
@@ -36,6 +37,10 @@ int main() {
     CROW_ROUTE(app, "/key/update")
         .methods("POST"_method)([](const crow::request& req) {
             return key_update_handler(req, db);
+        });
+    CROW_ROUTE(app, "/message/send")
+        .methods("POST"_method)([](const crow::request& req) {
+            return message_send_handler(req, db);
         });
 
     app.port(5000).multithreaded().run();

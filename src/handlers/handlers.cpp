@@ -8,14 +8,14 @@ crow::response user_find_handler(const crow::request& req,
                                  const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"));
+    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"), "Invalid JSON format");
 
     mongocxx::collection users = db["users"];
     bsoncxx::document::value filter_document =
         make_document(kvp("handle", request["handle"].s()));
     auto maybe_result = users.find_one(std::move(filter_document));
 
-    THROW_NOT_FOUND_IF(!maybe_result);
+    THROW_NOT_FOUND_IF(!maybe_result, "User not found");
 
     bsoncxx::document::value found_user = *maybe_result;
     crow::json::wvalue response_body{};
@@ -30,7 +30,7 @@ crow::response key_update_handler(const crow::request& req,
                                   const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "public_key", "handle"));
+    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "public_key", "handle"), "Invalid JSON format");
 
     mongocxx::collection users = db["users"];
     bsoncxx::document::value filter =
@@ -41,7 +41,7 @@ crow::response key_update_handler(const crow::request& req,
     auto maybe_result =
         users.find_one_and_update(std::move(filter), std::move(update));
 
-    THROW_NOT_FOUND_IF(!maybe_result);
+    THROW_NOT_FOUND_IF(!maybe_result, "User not found");
 
     return crow::response(200);
 }
@@ -52,16 +52,16 @@ crow::response message_send_handler(const crow::request& req,
     crow::json::rvalue request = crow::json::load(req.body);
 
     THROW_BAD_REQUEST_IF(!ValidateRequest(
-        request, "sender", "reciever", "payload", "datetime", "encrypted_by"));
+        request, "sender", "reciever", "payload", "datetime", "encrypted_by"), "Invalid JSON format");
 
     std::istringstream time_sent(request["datetime"].s());
     std::tm parsed_time = {};
-    time_sent >> std::get_time(&parsed_time, "%Y-$m-%d %H:%M:%S");
+    time_sent >> std::get_time(&parsed_time, "%Y-%m-%d %H:%M:%S");
 
-    THROW_BAD_REQUEST_IF(time_sent.fail());
+    THROW_BAD_REQUEST_IF(time_sent.fail(), "Failed to parse time string");
 
     std::time_t utc_time = std::mktime(&parsed_time);
-    THROW_BAD_REQUEST_IF(-1 == utc_time);
+    THROW_BAD_REQUEST_IF(-1 == utc_time, "Failed to build time from std::tm");
 
     bsoncxx::types::b_date bson_date{
         std::chrono::system_clock::from_time_t(utc_time)};
