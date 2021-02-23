@@ -12,6 +12,10 @@
 #include <mongocxx/stdx.hpp>
 #include <mongocxx/uri.hpp>
 
+#include <chrono>
+#include <ctime>
+#include <sstream>
+
 #include "request_helpers.hpp"
 
 crow::response user_find_handler(const crow::request& req,

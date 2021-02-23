@@ -1,11 +1,5 @@
 #include "handlers.hpp"
 
-#include <crow_all.h>
-
-#include <chrono>
-#include <ctime>
-#include <sstream>
-
 using bsoncxx::builder::basic::document;
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
@@ -73,10 +67,10 @@ crow::response message_send_handler(const crow::request& req,
         return crow::response(400);
     }
 
-    std::istringstream time_sent(request["datetime"]);
+    std::istringstream time_sent(request["datetime"].s());
     std::tm parsed_time = {};
 
-    time_sent >> std::get_time(&t, "%Y-$m-%d %H:%M:%S");
+    time_sent >> std::get_time(&parsed_time, "%Y-$m-%d %H:%M:%S");
 
     if (time_sent.fail()) {
         return crow::response(400);
@@ -93,12 +87,14 @@ crow::response message_send_handler(const crow::request& req,
     // TODO check sender and reciever are both exist
 
     bsoncxx::document::value new_message = make_document(
-        kvp("sender", request["sender"]), kvp("reciever", request["reciever"]),
-        kvp("payload", request["payload"]),
-        kvp("encrypted_by", request["encrypted_by"]),
+        kvp("sender", request["sender"].s()), kvp("reciever", request["reciever"].s()),
+        kvp("payload", request["payload"].s()),
+        kvp("encrypted_by", request["encrypted_by"].s()),
         kvp("datetime", bson_date));
 
     mongocxx::collection messages = db["messages"];
 
-    messages.insert_one(new_message);
+    messages.insert_one(std::move(new_message));
+
+    return crow::response(200);
 }
