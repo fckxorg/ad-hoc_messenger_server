@@ -16,6 +16,7 @@
 #include <sstream>
 
 #include "request_helpers.hpp"
+#include "db_utils.hpp"
 
 #define THROW_RESPONSE(condition, message, code) \
     if ((condition)) {                  \

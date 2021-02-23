@@ -25,6 +25,7 @@ set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
 set(TEST_TARGETS request_helpers handlers)
 
 add_subdirectory(src/handlers)
+add_subdirectory(src/db_utils)
 
 
 if(BUILD_TESTS)
@@ -61,7 +62,7 @@ foreach(CURRENT_TARGET ${CURRENT_TARGETS})
                            ${LIBMONGOCXX_LIBRARIES} 
                            pthread 
                            ZLIB::ZLIB
-                           libhandlers) 
+                           libhandlers)
 
     
 endforeach(CURRENT_TARGET)

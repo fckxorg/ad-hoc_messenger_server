@@ -9,6 +9,7 @@ target_include_directories(libhandlers
                            PUBLIC 
                             ${INCROOT}/handlers 
                             ${INCROOT}/request_helpers
+                            ${INCROOT}/db_utils
                             ${LIBMONGOCXX_LIBRARIES} 
                             ${LIBBSONCXX_LIBRARIES}
                             ${LIBMONGOCXX_INCLUDE_DIRS}
@@ -23,5 +24,6 @@ target_sources(libhandlers
 
 target_link_libraries(libhandlers PUBLIC
                       ${LIBMONGOCXX_LIBRARIES}
-                      ${LIBBSONCXX_LIBRARIES})
+                      ${LIBBSONCXX_LIBRARIES}
+                      libdbutils)
 
