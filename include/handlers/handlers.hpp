@@ -18,4 +18,6 @@ crow::response user_find_handler(const crow::request& req,
                                  const mongocxx::database& db);
 crow::response key_update_handler(const crow::request& req,
                                   const mongocxx::database& db);
+crow::response message_send_handler(const crow::request& req,
+                                    const mongocxx::database& db);
 #endif
