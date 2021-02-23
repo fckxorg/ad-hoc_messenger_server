@@ -8,23 +8,17 @@ crow::response user_find_handler(const crow::request& req,
                                  const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    if (!ValidateRequest(request, "handle")) {
-        return crow::response(400);
-    }
-
-    bsoncxx::document::value filter_document =
-        make_document(kvp("handle", request["handle"].s()));
+    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"));
 
     mongocxx::collection users = db["users"];
+    bsoncxx::document::value filter_document =
+        make_document(kvp("handle", request["handle"].s()));
     auto maybe_result = users.find_one(std::move(filter_document));
 
-    if (!maybe_result) {
-        return crow::response(404);
-    }
+    THROW_NOT_FOUND_IF(!maybe_result);
 
     bsoncxx::document::value found_user = *maybe_result;
     crow::json::wvalue response_body{};
-
     response_body["public_key"] =
         bsoncxx::stdx::string_view(found_user.view()["public_key"].get_utf8())
             .data();
@@ -36,12 +30,9 @@ crow::response key_update_handler(const crow::request& req,
                                   const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    if (!ValidateRequest(request, "public_key", "handle")) {
-        return crow::response(400);
-    }
+    THROW_BAD_REQUEST_IF(!ValidateRequest(request, "public_key", "handle"));
 
     mongocxx::collection users = db["users"];
-
     bsoncxx::document::value filter =
         make_document(kvp("handle", request["handle"].s()));
     bsoncxx::document::value update = make_document(kvp(
@@ -50,9 +41,7 @@ crow::response key_update_handler(const crow::request& req,
     auto maybe_result =
         users.find_one_and_update(std::move(filter), std::move(update));
 
-    if (!maybe_result) {
-        return crow::response(404);
-    }
+    THROW_NOT_FOUND_IF(!maybe_result);
 
     return crow::response(200);
 }
@@ -62,35 +51,29 @@ crow::response message_send_handler(const crow::request& req,
                                     const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
-    if (!ValidateRequest(request, "sender", "reciever", "payload", "datetime",
-                         "encrypted_by")) {
-        return crow::response(400);
-    }
+    THROW_BAD_REQUEST_IF(!ValidateRequest(
+        request, "sender", "reciever", "payload", "datetime", "encrypted_by"));
 
     std::istringstream time_sent(request["datetime"].s());
     std::tm parsed_time = {};
-
     time_sent >> std::get_time(&parsed_time, "%Y-$m-%d %H:%M:%S");
 
-    if (time_sent.fail()) {
-        return crow::response(400);
-    }
+    THROW_BAD_REQUEST_IF(time_sent.fail());
 
     std::time_t utc_time = std::mktime(&parsed_time);
-    if (-1 == utc_time) {
-        return crow::response(400);
-    }
+    THROW_BAD_REQUEST_IF(-1 == utc_time);
 
     bsoncxx::types::b_date bson_date{
         std::chrono::system_clock::from_time_t(utc_time)};
 
     // TODO check sender and reciever are both exist
 
-    bsoncxx::document::value new_message = make_document(
-        kvp("sender", request["sender"].s()), kvp("reciever", request["reciever"].s()),
-        kvp("payload", request["payload"].s()),
-        kvp("encrypted_by", request["encrypted_by"].s()),
-        kvp("datetime", bson_date));
+    bsoncxx::document::value new_message =
+        make_document(kvp("sender", request["sender"].s()),
+                      kvp("reciever", request["reciever"].s()),
+                      kvp("payload", request["payload"].s()),
+                      kvp("encrypted_by", request["encrypted_by"].s()),
+                      kvp("datetime", bson_date));
 
     mongocxx::collection messages = db["messages"];
 
