@@ -75,8 +75,6 @@ crow::response message_send_handler(const crow::request& req,
     bsoncxx::types::b_date bson_date{
         std::chrono::system_clock::from_time_t(utc_time)};
 
-    // TODO check sender and reciever are both exist
-
     bsoncxx::document::value new_message =
         make_document(kvp("sender", request["sender"].s()),
                       kvp("reciever", request["reciever"].s()),
