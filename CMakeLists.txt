@@ -22,7 +22,7 @@ find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
-set(TEST_TARGETS request_helpers handlers)
+set(TEST_TARGETS request_helpers handlers db_utils)
 
 add_subdirectory(src/handlers)
 add_subdirectory(src/db_utils)
@@ -62,7 +62,8 @@ foreach(CURRENT_TARGET ${CURRENT_TARGETS})
                            ${LIBMONGOCXX_LIBRARIES} 
                            pthread 
                            ZLIB::ZLIB
-                           libhandlers)
+                           libhandlers
+                           libdbutils)
 
     
 endforeach(CURRENT_TARGET)

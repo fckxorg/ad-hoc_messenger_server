@@ -40,10 +40,13 @@ class HandlerTestFixture : public ::testing::Test {
     }
 
     virtual void TearDown() {
-        bsoncxx::document::value test_user =
+        bsoncxx::document::value test_user_fckxorg =
             make_document(kvp("handle", "@fckxorg"));
+        bsoncxx::document::value test_user_coffee =
+            make_document(kvp("handle", "@COFF33"));
         auto users = (*test_db)["users"];
-        users.delete_one(std::move(test_user));
+        users.delete_one(std::move(test_user_fckxorg));
+        users.delete_one(std::move(test_user_coffee));
 
         delete test_db;
     }
