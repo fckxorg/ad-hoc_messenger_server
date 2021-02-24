@@ -17,7 +17,7 @@ class DBMapping {
     std::string properties[n_properties];
 
    public:
-    std::string_view get(uint32_t property_id) {
+    std::string get(uint32_t property_id) {
         assert(property_id < n_properties);
 
         return properties[property_id];
@@ -25,10 +25,13 @@ class DBMapping {
 
     void set(const char* data, uint32_t property_id) {
         assert(property_id < n_properties);
+
         assert(data != nullptr);
         properties[property_id] = data;
     }
 
     virtual bsoncxx::document::value serialize() = 0;
 };
+
+class Database {};
 
