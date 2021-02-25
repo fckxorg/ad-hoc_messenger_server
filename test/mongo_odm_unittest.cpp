@@ -20,6 +20,7 @@ using bsoncxx::builder::basic::make_document;
 class MappingMock : public DBMapping<2> {
    public:
     bsoncxx::document::value serialize() override { return make_document(); }
+    void deserialize(const bsoncxx::document::value& data) override {}
 };
 
 TEST(DBMappingClass, GetAndSetString) {

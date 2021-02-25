@@ -11,6 +11,8 @@ crow::response user_find_handler(const crow::request& req,
     THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"),
                          "Invalid JSON format");
 
+   
+
     auto user_optional = find_user_by_handle(request["handle"].s(), db);
 
     THROW_NOT_FOUND_IF(!user_optional, "User not found");
