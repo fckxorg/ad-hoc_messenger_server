@@ -6,6 +6,7 @@
 #include <bsoncxx/builder/basic/kvp.hpp>
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/stdx/string_view.hpp>
+#include <chrono>
 #include <cstdint>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
@@ -21,14 +22,27 @@ class MappingMock : public DBMapping<2> {
     bsoncxx::document::value serialize() override { return make_document(); }
 };
 
-TEST(DBMappingClass, GetAndSet) {
+TEST(DBMappingClass, GetAndSetString) {
     MappingMock mock_object{};
 
-    mock_object.set("sample", 0);
-    mock_object.set("other_sample", 1);
+    std::string sample{"test_string"};
 
-    EXPECT_EQ(mock_object.get(0) == "sample", true);
-    EXPECT_EQ(mock_object.get(1) == "other_sample", true);
+    mock_object.set(sample, 0);
+    EXPECT_EQ(static_cast<std::string>(std::get<0>(mock_object.get(0))),
+              sample);
+}
+
+TEST(DBMappingClass, GetAndSetTime) {
+    MappingMock mock_object{};
+
+    std::chrono::system_clock::time_point sample =
+        std::chrono::system_clock::now();
+
+    mock_object.set(sample, 0);
+
+    auto result = std::get<1>(mock_object.get(0));
+
+    EXPECT_EQ(result, sample);
 }
 
 int main(int argc, char** argv) {
