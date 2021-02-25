@@ -23,7 +23,17 @@ class DBMapping {
         std::variant<std::string, std::chrono::system_clock::time_point>;
     mapping_variant properties[n_properties];
 
+   protected:
+    // TODO error-checking
+    std::string get_string_from_bson(const bsoncxx::document::value& doc,
+                                     const std::string& property) {
+        return std::string(
+            bsoncxx::stdx::string_view(doc.view()[property].get_utf8()).data());
+    }
+
    public:
+    enum TYPES { STRING = 0, TIME = 1 };
+
     mapping_variant get(uint32_t property_id) {
         assert(property_id < n_properties);
 

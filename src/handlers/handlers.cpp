@@ -3,7 +3,7 @@
 using bsoncxx::builder::basic::document;
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
-
+/*
 crow::response user_find_handler(const crow::request& req,
                                  const Database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
@@ -89,4 +89,4 @@ crow::response message_send_handler(const crow::request& req,
     messages.insert_one(std::move(new_message));
 
     return crow::response(200);
-}
+}*/

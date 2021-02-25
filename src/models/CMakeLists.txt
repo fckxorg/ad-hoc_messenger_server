@@ -1,30 +1,25 @@
-add_library(libhandlers)
+add_library(libmodels)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include)
 
 find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
-target_include_directories(libhandlers 
+target_include_directories(libmodels 
                            PUBLIC 
-                            ${INCROOT}/handlers 
-                            ${INCROOT}/request_helpers
-                            ${INCROOT}/db_utils
                             ${INCROOT}/mongo_odm
+                            ${INCROOT}/models
                             ${LIBMONGOCXX_LIBRARIES} 
                             ${LIBBSONCXX_LIBRARIES}
                             ${LIBMONGOCXX_INCLUDE_DIRS}
                             ${LIBBSONCXX_INCLUDE_DIRS})
 
-target_sources(libhandlers 
+target_sources(libmodels 
                PUBLIC
-                ${INCROOT}/handlers/handlers.hpp
+                ${INCROOT}/models/models.hpp
                PRIVATE
-                handlers.cpp
+                models.cpp
                )
-
-target_link_libraries(libhandlers PUBLIC
+target_link_libraries(libmodels PUBLIC
                       ${LIBMONGOCXX_LIBRARIES}
-                      ${LIBBSONCXX_LIBRARIES}
-                      libdbutils)
-
+                      ${LIBBSONCXX_LIBRARIES})
