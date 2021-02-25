@@ -1,3 +1,6 @@
+#ifndef MONGO_ODM_HPP
+#define MONGO_ODM_HPP
+
 #include <bsoncxx/builder/basic/document.hpp>
 #include <bsoncxx/builder/basic/kvp.hpp>
 #include <bsoncxx/json.hpp>
@@ -51,7 +54,7 @@ class Collection {
     Collection() = delete;
     ~Collection() = default;
 
-    Collection(const mongocxx::collection& other);
+    Collection(const mongocxx::collection& other) { col = other; }
 
     std::vector<MappingType> filter_str_eq(
         std::unordered_map<std::string, std::string> query) {
@@ -93,3 +96,4 @@ class Database {
     }
 };
 
+#endif

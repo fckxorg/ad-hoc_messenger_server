@@ -15,23 +15,24 @@
 #include <mongocxx/uri.hpp>
 #include <sstream>
 
-#include "request_helpers.hpp"
 #include "db_utils.hpp"
+#include "mongo_odm.hpp"
+#include "request_helpers.hpp"
 
 #define THROW_RESPONSE(condition, message, code) \
-    if ((condition)) {                  \
-        perror((message));              \
-        return crow::response(code);    \
+    if ((condition)) {                           \
+        perror((message));                       \
+        return crow::response(code);             \
     }
 
-#define THROW_BAD_REQUEST_IF(condition, message) THROW_RESPONSE((condition), (message), 400)
+#define THROW_BAD_REQUEST_IF(condition, message) \
+    THROW_RESPONSE((condition), (message), 400)
 
-#define THROW_NOT_FOUND_IF(condition, message) THROW_RESPONSE((condition), (message), 404)
+#define THROW_NOT_FOUND_IF(condition, message) \
+    THROW_RESPONSE((condition), (message), 404)
 
-crow::response user_find_handler(const crow::request& req,
-                                 const mongocxx::database& db);
-crow::response key_update_handler(const crow::request& req,
-                                  const mongocxx::database& db);
+crow::response user_find_handler(const crow::request& req, const Database& db);
+crow::response key_update_handler(const crow::request& req, const Database& db);
 crow::response message_send_handler(const crow::request& req,
-                                    const mongocxx::database& db);
+                                    const Database& db);
 #endif

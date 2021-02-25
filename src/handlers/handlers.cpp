@@ -5,7 +5,7 @@ using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
 
 crow::response user_find_handler(const crow::request& req,
-                                 const mongocxx::database& db) {
+                                 const Database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
     THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"),

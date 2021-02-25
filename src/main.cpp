@@ -10,15 +10,10 @@
 #include <mongocxx/uri.hpp>
 
 #include "handlers/handlers.hpp"
-
-mongocxx::database db;
+#include "mongo_odm/mongo_odm.hpp"
 
 int main() {
-    mongocxx::instance instance{};
-    mongocxx::client client{mongocxx::uri{}};
-
-    db = client["messenger_db"];
-
+    Database db{"messenger_db"};
     crow::SimpleApp app;
 
     //========================================================================
