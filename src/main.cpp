@@ -13,8 +13,8 @@
 #include "mongo_odm/mongo_odm.hpp"
 
 int main() {
-    Database db{"messenger_db"};
     crow::SimpleApp app;
+    Database db{"messenger_db"};
 
     //========================================================================
     //
@@ -25,16 +25,16 @@ int main() {
     //========================================================================
 
     CROW_ROUTE(app, "/user/find")
-        .methods("POST"_method)([](const crow::request& req) {
+        .methods("POST"_method)([&db](const crow::request& req) {
             return user_find_handler(req, db);
         });
 
     CROW_ROUTE(app, "/key/update")
-        .methods("POST"_method)([](const crow::request& req) {
+        .methods("POST"_method)([&db](const crow::request& req) {
             return key_update_handler(req, db);
         });
     CROW_ROUTE(app, "/message/send")
-        .methods("POST"_method)([](const crow::request& req) {
+        .methods("POST"_method)([&db](const crow::request& req) {
             return message_send_handler(req, db);
         });
 

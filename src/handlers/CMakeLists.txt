@@ -11,6 +11,7 @@ target_include_directories(libhandlers
                             ${INCROOT}/request_helpers
                             ${INCROOT}/db_utils
                             ${INCROOT}/mongo_odm
+                            ${INCROOT}/models
                             ${LIBMONGOCXX_LIBRARIES} 
                             ${LIBBSONCXX_LIBRARIES}
                             ${LIBMONGOCXX_INCLUDE_DIRS}
@@ -26,5 +27,6 @@ target_sources(libhandlers
 target_link_libraries(libhandlers PUBLIC
                       ${LIBMONGOCXX_LIBRARIES}
                       ${LIBBSONCXX_LIBRARIES}
-                      libdbutils)
+                      libdbutils
+                      libmodels)
 

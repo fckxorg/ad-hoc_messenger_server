@@ -21,7 +21,7 @@ bsoncxx::document::value User::serialize() {
                          kvp("public_key", get_public_key()));
 }
 
-void User::deserialize(const bsoncxx::document::value& data) {
+void User::deserialize(const bsoncxx::document::view& data) {
     set_handle(get_string_from_bson(data, "handle"));
     set_email(get_string_from_bson(data, "email"));
     set_public_key(get_string_from_bson(data, "public_key"));

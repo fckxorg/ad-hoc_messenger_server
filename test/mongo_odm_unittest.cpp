@@ -20,8 +20,10 @@ using bsoncxx::builder::basic::make_document;
 class MappingMock : public DBMapping<2> {
    public:
     bsoncxx::document::value serialize() override { return make_document(); }
-    void deserialize(const bsoncxx::document::value& data) override {}
+    void deserialize(const bsoncxx::document::view& data) override {}
 };
+
+Database* db = new Database("test_messenger_db");
 
 TEST(DBMappingClass, GetAndSetString) {
     MappingMock mock_object{};

@@ -25,10 +25,10 @@ class DBMapping {
 
    protected:
     // TODO error-checking
-    std::string get_string_from_bson(const bsoncxx::document::value& doc,
+    std::string get_string_from_bson(const bsoncxx::document::view& doc,
                                      const std::string& property) {
         return std::string(
-            bsoncxx::stdx::string_view(doc.view()[property].get_utf8()).data());
+            bsoncxx::stdx::string_view(doc[property].get_utf8()).data());
     }
 
    public:
@@ -52,7 +52,7 @@ class DBMapping {
     }
 
     virtual bsoncxx::document::value serialize() = 0;
-    virtual void deserialize(const bsoncxx::document::value& data) = 0;
+    virtual void deserialize(const bsoncxx::document::view& data) = 0;
 };
 
 template <typename MappingType>
@@ -87,6 +87,16 @@ class Collection {
 
         return result;
     }
+
+    void insert_one(MappingType& doc) {
+        auto bson_doc = doc.serialize();
+        col.insert_one(std::move(bson_doc));
+    }
+
+    void delete_one(MappingType& doc) {
+        auto bson_doc = doc.serialize();
+        col.delete_one(std::move(bson_doc));
+    }
 };
 
 class Database {
@@ -101,7 +111,12 @@ class Database {
     }
 
     template <typename MappingType>
-    Collection<MappingType> operator[](const std::string& collection_name) {
+    Collection<MappingType> get_collection(const std::string& collection_name) {
+        return Collection<MappingType>(db[collection_name]);
+    }
+
+    template <typename MappingType>
+    Collection<MappingType> get_collection(const char* collection_name) {
         return Collection<MappingType>(db[collection_name]);
     }
 };

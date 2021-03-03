@@ -1,3 +1,6 @@
+#ifndef MODELS_HPP
+#define MODELS_HPP
+
 #include <variant>
 
 #include "mongo_odm.hpp"
@@ -16,7 +19,7 @@ class User : public DBMapping<3> {
 
     bsoncxx::document::value serialize() override;
 
-    void deserialize(const bsoncxx::document::value& data);
+    void deserialize(const bsoncxx::document::view& data);
 };
 
 class Message : public DBMapping<5> {
@@ -42,3 +45,5 @@ class Message : public DBMapping<5> {
     std::string get_encrypted_by();
     std::chrono::system_clock::time_point get_datetime();
 };
+
+#endif

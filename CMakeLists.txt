@@ -22,7 +22,7 @@ find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
-set(TEST_TARGETS request_helpers db_utils mongo_odm) # add handlers later
+set(TEST_TARGETS request_helpers db_utils mongo_odm handlers) # add handlers later
 
 add_subdirectory(src/handlers)
 add_subdirectory(src/db_utils)
@@ -64,7 +64,8 @@ foreach(CURRENT_TARGET ${CURRENT_TARGETS})
                            pthread 
                            ZLIB::ZLIB
                            libhandlers
-                           libdbutils)
+                           libdbutils
+                           libmodels)
 
     
 endforeach(CURRENT_TARGET)

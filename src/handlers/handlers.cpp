@@ -3,29 +3,27 @@
 using bsoncxx::builder::basic::document;
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
-/*
-crow::response user_find_handler(const crow::request& req,
-                                 const Database& db) {
+
+crow::response user_find_handler(const crow::request& req, Database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
     THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"),
                          "Invalid JSON format");
 
-   
+    auto query_result = db.get_collection<User>("users")
+                            .filter_str_eq({{"handle", request["handle"].s()}});
+    // auto user_optional = find_user_by_handle(request["handle"].s(), db);
 
-    auto user_optional = find_user_by_handle(request["handle"].s(), db);
+    THROW_NOT_FOUND_IF(!query_result.size(), "User not found");
+    // THROW_NOT_FOUND_IF(!user_optional, "User not found");
 
-    THROW_NOT_FOUND_IF(!user_optional, "User not found");
-
-    bsoncxx::document::value found_user = *user_optional;
+    User found_user = query_result[0];
     crow::json::wvalue response_body{};
-    response_body["public_key"] =
-        bsoncxx::stdx::string_view(found_user.view()["public_key"].get_utf8())
-            .data();
+    response_body["public_key"] = found_user.get_public_key();
 
     return crow::response(200, response_body.dump());
 }
-
+/*
 crow::response key_update_handler(const crow::request& req,
                                   const mongocxx::database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
