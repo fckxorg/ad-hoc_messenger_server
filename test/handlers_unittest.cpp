@@ -1,4 +1,5 @@
 #define CROW_MAIN_
+
 #include "handlers.hpp"
 
 #include <crow_all.h>
@@ -13,6 +14,9 @@
 #include <mongocxx/stdx.hpp>
 #include <mongocxx/uri.hpp>
 
+#include "models.hpp"
+#include "mongo_odm.hpp"
+
 using bsoncxx::builder::basic::document;
 using bsoncxx::builder::basic::kvp;
 using bsoncxx::builder::basic::make_document;
@@ -21,34 +25,35 @@ using bsoncxx::builder::basic::make_document;
 mongocxx::instance instance{};
 
 class HandlerTestFixture : public ::testing::Test {
+   private:
+    User fckxorg;
+    User coffee;
+
    protected:
-    mongocxx::client client;
-    mongocxx::database* test_db;
+    Database* db;
 
     virtual void SetUp() {
-        client = mongocxx::client(mongocxx::uri{});
-        test_db = new mongocxx::database(client["test_messenger_db"]);
+        db = new Database("messenger_test_db");
 
-        bsoncxx::document::value test_user_fckxorg = make_document(
-            kvp("handle", "@fckxorg"), kvp("public_key", "my_key"));
-        bsoncxx::document::value test_user_coffee = make_document(
-            kvp("handle", "@COFF33"), kvp("public_key", "coffee_key"));
+        fckxorg.set_email("max.kokryashkiN@gmail.com");
+        fckxorg.set_handle("@fckxorg");
+        fckxorg.set_public_key("fckxorg_key");
 
-        auto users = (*test_db)["users"];
-        users.insert_one(std::move(test_user_fckxorg));
-        users.insert_one(std::move(test_user_coffee));
+        coffee.set_email("test@test.com");
+        coffee.set_handle("@COFF33");
+        coffee.set_public_key("coffee_key");
+
+        auto users = db->get_collection<User>("users");
+        users.insert_one(fckxorg);
+        users.insert_one(coffee);
     }
 
     virtual void TearDown() {
-        bsoncxx::document::value test_user_fckxorg =
-            make_document(kvp("handle", "@fckxorg"));
-        bsoncxx::document::value test_user_coffee =
-            make_document(kvp("handle", "@COFF33"));
-        auto users = (*test_db)["users"];
-        users.delete_one(std::move(test_user_fckxorg));
-        users.delete_one(std::move(test_user_coffee));
+        auto users = db->get_collection<User>("users");
+        users.delete_one(fckxorg);
+        users.delete_one(coffee);
 
-        delete test_db;
+        delete db;
     }
 };
 
@@ -63,7 +68,7 @@ TEST_F(HandlerTestFixture, UserFindHandler_Success) {
     test_request.body = "{\"handle\": \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    crow::response test_response = user_find_handler(test_request, *test_db);
+    crow::response test_response = user_find_handler(test_request, *db);
     crow::json::rvalue response_body = crow::json::load(test_response.body);
 
     EXPECT_EQ(test_response.code, 200);
@@ -75,7 +80,7 @@ TEST_F(HandlerTestFixture, UserFindHandler_InvalidJson) {
     test_request.body = "{\"handle: \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(user_find_handler(test_request, *test_db).code, 400);
+    EXPECT_EQ(user_find_handler(test_request, *db).code, 400);
 }
 
 TEST_F(HandlerTestFixture, UserFindHandler_UserNotFound) {
@@ -83,7 +88,7 @@ TEST_F(HandlerTestFixture, UserFindHandler_UserNotFound) {
     test_request.body = "{\"handle\": \"@C0FF33\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(user_find_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(user_find_handler(test_request, *db).code, 404);
 }
 
 //=================================================
@@ -98,7 +103,7 @@ TEST_F(HandlerTestFixture, KeyUpdateHandler_Success) {
         "{\"handle\": \"@fckxorg\", \"public_key\": \"new_key\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(key_update_handler(test_request, *test_db).code, 200);
+    EXPECT_EQ(key_update_handler(test_request, *db).code, 200);
 }
 
 TEST_F(HandlerTestFixture, KeyUpdateHandle_InvalidJSON) {
@@ -107,7 +112,7 @@ TEST_F(HandlerTestFixture, KeyUpdateHandle_InvalidJSON) {
         "{\"handle\": \"@fckxorg\", \"pubic_key\": \"new_key\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(key_update_handler(test_request, *test_db).code, 400);
+    EXPECT_EQ(key_update_handler(test_request, *db).code, 400);
 }
 
 TEST_F(HandlerTestFixture, KeyUpdateHandler_UserNotFound) {
@@ -116,7 +121,7 @@ TEST_F(HandlerTestFixture, KeyUpdateHandler_UserNotFound) {
         "{\"handle\": \"@fckxor\", \"public_key\": \"new_key\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(key_update_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(key_update_handler(test_request, *db).code, 404);
 }
 
 //=================================================
@@ -133,7 +138,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_Success) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 200);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 200);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_InvalidJSON) {
@@ -144,7 +149,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_InvalidJSON) {
         "\"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 400);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 400);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_InvalidTimeFormat) {
@@ -155,7 +160,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_InvalidTimeFormat) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 400);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 400);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_SenderDoesntExist) {
@@ -166,7 +171,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_SenderDoesntExist) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_RecieverDoesntExist) {
@@ -177,7 +182,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_RecieverDoesntExist) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_EncryptorDoesntExist) {
@@ -188,7 +193,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_EncryptorDoesntExist) {
         "\"encrypted_by\" : \"@fckxor\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
 }
 
 int main(int argc, char** argv) {
