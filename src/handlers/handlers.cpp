@@ -57,15 +57,12 @@ crow::response message_send_handler(const crow::request& req, Database& db) {
     auto users = db.get_collection<User>("users");
     auto messages = db.get_collection<Message>("messages");
 
-    auto sender_query = db.get_collection<User>("users").filter_str_eq(
-        {{"handle", request["sender"].s()}});
-    auto reciever_query = db.get_collection<User>("users").filter_str_eq(
-        {{"handle", request["reciever"].s()}});
-    auto encryptor_query = db.get_collection<User>("users").filter_str_eq(
-        {{"handle", request["encrypted_by"].s()}});
-
-    printf("%d %d %d\n", sender_query.size(), reciever_query.size(), encryptor_query.size());
-    fflush(stdout);
+    auto sender_query =
+        users.filter_str_eq({{"handle", request["sender"].s()}});
+    auto reciever_query =
+        users.filter_str_eq({{"handle", request["reciever"].s()}});
+    auto encryptor_query =
+        users.filter_str_eq({{"handle", request["encrypted_by"].s()}});
 
     bool not_found = sender_query.empty() || reciever_query.empty() ||
                      encryptor_query.empty();
