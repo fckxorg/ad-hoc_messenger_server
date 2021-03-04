@@ -6,7 +6,6 @@ target_include_directories(libhandlers
                            PUBLIC 
                             ${INCROOT}/handlers 
                             ${INCROOT}/request_helpers
-                            ${INCROOT}/db_utils
                             ${INCROOT}/mongo_odm
                             ${INCROOT}/models)
 
@@ -18,6 +17,5 @@ target_sources(libhandlers
                )
 
 target_link_libraries(libhandlers PUBLIC
-                      libdbutils
                       libmodels)
 

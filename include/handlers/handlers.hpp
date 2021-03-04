@@ -7,7 +7,6 @@
 #include <ctime>
 #include <sstream>
 
-#include "db_utils.hpp"
 #include "models.hpp"
 #include "mongo_odm.hpp"
 #include "request_helpers.hpp"
