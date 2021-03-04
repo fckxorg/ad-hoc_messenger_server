@@ -18,8 +18,6 @@ target_sources(libhandlers
                )
 
 target_link_libraries(libhandlers PUBLIC
-                      ${LIBMONGOCXX_LIBRARIES}
-                      ${LIBBSONCXX_LIBRARIES}
                       libdbutils
                       libmodels)
 
