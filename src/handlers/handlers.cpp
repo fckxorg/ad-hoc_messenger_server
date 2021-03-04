@@ -15,6 +15,7 @@ crow::response user_find_handler(const crow::request& req, Database& db) {
 
     User found_user = query_result[0];
     crow::json::wvalue response_body{};
+
     response_body["public_key"] = found_user.get_public_key();
 
     return crow::response(200, response_body.dump());

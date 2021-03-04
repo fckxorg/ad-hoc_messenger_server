@@ -23,6 +23,7 @@ find_package(libbsoncxx REQUIRED)
 
 set(INCROOT ${PROJECT_SOURCE_DIR}/include/)
 set(TEST_TARGETS request_helpers mongo_odm handlers) # add handlers later
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(src/handlers)
 add_subdirectory(src/models)
