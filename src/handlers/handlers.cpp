@@ -65,22 +65,15 @@ crow::response message_send_handler(const crow::request& req, Database& db) {
 
     THROW_NOT_FOUND_IF(not_found, "User not found");
 
-    // TODO helper for string to time_point conversion
-    std::istringstream time_sent(request["datetime"].s());
-    std::tm parsed_time = {};
-    time_sent >> std::get_time(&parsed_time, "%Y-%m-%d %H:%M:%S");
-
-    THROW_BAD_REQUEST_IF(time_sent.fail(), "Failed to parse time string");
-
-    std::time_t utc_time = std::mktime(&parsed_time);
-    THROW_BAD_REQUEST_IF(-1 == utc_time, "Failed to build time from std::tm");
+    auto tp = str_to_tp(request["datetime"].s());
+    THROW_BAD_REQUEST_IF(!tp, "Invalid datetime format");
 
     Message new_message{};
     new_message.set_sender(request["sender"].s());
     new_message.set_reciever(request["reciever"].s());
     new_message.set_payload(request["payload"].s());
     new_message.set_encrypted_by(request["encrypted_by"].s());
-    new_message.set_datetime(std::chrono::system_clock::from_time_t(utc_time));
+    new_message.set_datetime(*tp);
 
     messages.insert_one(new_message);
 

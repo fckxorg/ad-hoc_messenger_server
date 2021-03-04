@@ -26,6 +26,7 @@ set(TEST_TARGETS request_helpers mongo_odm handlers) # add handlers later
 
 add_subdirectory(src/handlers)
 add_subdirectory(src/models)
+add_subdirectory(src/request_helpers)
 
 
 if(BUILD_TESTS)
@@ -63,6 +64,7 @@ foreach(CURRENT_TARGET ${CURRENT_TARGETS})
                            pthread 
                            ZLIB::ZLIB
                            libhandlers
+                           librequesthelpers
                            libmodels)
 
     
