@@ -3,16 +3,8 @@
 
 #include <crow_all.h>
 
-#include <bsoncxx/builder/basic/document.hpp>
-#include <bsoncxx/builder/basic/kvp.hpp>
-#include <bsoncxx/json.hpp>
-#include <bsoncxx/stdx/string_view.hpp>
 #include <chrono>
 #include <ctime>
-#include <mongocxx/client.hpp>
-#include <mongocxx/instance.hpp>
-#include <mongocxx/stdx.hpp>
-#include <mongocxx/uri.hpp>
 #include <sstream>
 
 #include "db_utils.hpp"
