@@ -43,10 +43,9 @@ crow::response key_update_handler(const crow::request& req, Database& db) {
 
     return crow::response(200);
 }
-/*
+
 // time format in json: %Y-%m-%d %H:%M:%S
-crow::response message_send_handler(const crow::request& req,
-                                    const mongocxx::database& db) {
+crow::response message_send_handler(const crow::request& req, Database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
     THROW_BAD_REQUEST_IF(
@@ -55,13 +54,25 @@ crow::response message_send_handler(const crow::request& req,
         "Invalid JSON format");
 
     // checking users exist
-    auto user_optional = find_user_by_handle(request["sender"].s(), db);
-    THROW_NOT_FOUND_IF(!user_optional, "User not found");
-    user_optional = find_user_by_handle(request["reciever"].s(), db);
-    THROW_NOT_FOUND_IF(!user_optional, "User not found");
-    user_optional = find_user_by_handle(request["encrypted_by"].s(), db);
-    THROW_NOT_FOUND_IF(!user_optional, "User not found");
+    auto users = db.get_collection<User>("users");
+    auto messages = db.get_collection<Message>("messages");
 
+    auto sender_query = db.get_collection<User>("users").filter_str_eq(
+        {{"handle", request["sender"].s()}});
+    auto reciever_query = db.get_collection<User>("users").filter_str_eq(
+        {{"handle", request["reciever"].s()}});
+    auto encryptor_query = db.get_collection<User>("users").filter_str_eq(
+        {{"handle", request["encrypted_by"].s()}});
+
+    printf("%d %d %d\n", sender_query.size(), reciever_query.size(), encryptor_query.size());
+    fflush(stdout);
+
+    bool not_found = sender_query.empty() || reciever_query.empty() ||
+                     encryptor_query.empty();
+
+    THROW_NOT_FOUND_IF(not_found, "User not found");
+
+    // TODO helper for string to time_point conversion
     std::istringstream time_sent(request["datetime"].s());
     std::tm parsed_time = {};
     time_sent >> std::get_time(&parsed_time, "%Y-%m-%d %H:%M:%S");
@@ -71,19 +82,14 @@ crow::response message_send_handler(const crow::request& req,
     std::time_t utc_time = std::mktime(&parsed_time);
     THROW_BAD_REQUEST_IF(-1 == utc_time, "Failed to build time from std::tm");
 
-    bsoncxx::types::b_date bson_date{
-        std::chrono::system_clock::from_time_t(utc_time)};
+    Message new_message{};
+    new_message.set_sender(request["sender"].s());
+    new_message.set_reciever(request["reciever"].s());
+    new_message.set_payload(request["payload"].s());
+    new_message.set_encrypted_by(request["encrypted_by"].s());
+    new_message.set_datetime(std::chrono::system_clock::from_time_t(utc_time));
 
-    bsoncxx::document::value new_message =
-        make_document(kvp("sender", request["sender"].s()),
-                      kvp("reciever", request["reciever"].s()),
-                      kvp("payload", request["payload"].s()),
-                      kvp("encrypted_by", request["encrypted_by"].s()),
-                      kvp("datetime", bson_date));
-
-    mongocxx::collection messages = db["messages"];
-
-    messages.insert_one(std::move(new_message));
+    messages.insert_one(new_message);
 
     return crow::response(200);
-}*/
+}

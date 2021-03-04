@@ -22,6 +22,7 @@ bsoncxx::document::value User::serialize() {
 }
 
 void User::deserialize(const bsoncxx::document::view& data) {
+    // TODO erorr-checking
     set_handle(get_string_from_bson(data, "handle"));
     set_email(get_string_from_bson(data, "email"));
     set_public_key(get_string_from_bson(data, "public_key"));
@@ -50,4 +51,22 @@ std::string Message::get_encrypted_by() {
 }
 std::chrono::system_clock::time_point Message::get_datetime() {
     return std::get<TIME>(get(DATETIME));
+}
+
+bsoncxx::document::value Message::serialize() {
+    bsoncxx::types::b_date bson_date{get_datetime()};
+    return make_document(
+        kvp("sender", get_sender()), kvp("reciever", get_reciever()),
+        kvp("payload", get_payload()), kvp("encrypted_by", get_encrypted_by()),
+        kvp("datetime", bson_date));
+}
+
+void Message::deserialize(const bsoncxx::document::view& data) {
+    // TODO datetime gathering
+    // TODO error-checking
+
+    set_sender(get_string_from_bson(data, "sender"));
+    set_reciever(get_string_from_bson(data, "reciever"));
+    set_payload(get_string_from_bson(data, "paylaod"));
+    set_encrypted_by(get_string_from_bson(data, "encrypted_by"));
 }

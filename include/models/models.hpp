@@ -18,8 +18,7 @@ class User : public DBMapping<3> {
     std::string get_public_key();
 
     bsoncxx::document::value serialize() override;
-
-    void deserialize(const bsoncxx::document::view& data);
+    void deserialize(const bsoncxx::document::view& data) override;
 };
 
 class Message : public DBMapping<5> {
@@ -44,6 +43,9 @@ class Message : public DBMapping<5> {
     std::string get_payload();
     std::string get_encrypted_by();
     std::chrono::system_clock::time_point get_datetime();
+
+    bsoncxx::document::value serialize() override;
+    void deserialize(const bsoncxx::document::view& data) override;
 };
 
 #endif

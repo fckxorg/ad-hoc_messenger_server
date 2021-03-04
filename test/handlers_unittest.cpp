@@ -129,7 +129,7 @@ TEST_F(HandlerTestFixture, KeyUpdateHandler_UserNotFound) {
 //              MessageSendHandler Tests
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //=================================================
-/*
+
 TEST_F(HandlerTestFixture, MessageSendHandler_Success) {
     crow::request test_request{};
     test_request.body =
@@ -138,7 +138,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_Success) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 200);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 200);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_InvalidJSON) {
@@ -149,7 +149,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_InvalidJSON) {
         "\"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 400);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 400);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_InvalidTimeFormat) {
@@ -160,7 +160,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_InvalidTimeFormat) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 400);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 400);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_SenderDoesntExist) {
@@ -171,7 +171,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_SenderDoesntExist) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_RecieverDoesntExist) {
@@ -182,7 +182,7 @@ TEST_F(HandlerTestFixture, MessageSendHandler_RecieverDoesntExist) {
         "\"encrypted_by\" : \"@fckxorg\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
 }
 
 TEST_F(HandlerTestFixture, MessageSendHandler_EncryptorDoesntExist) {
@@ -193,9 +193,9 @@ TEST_F(HandlerTestFixture, MessageSendHandler_EncryptorDoesntExist) {
         "\"encrypted_by\" : \"@fckxor\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(message_send_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
 }
-*/
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

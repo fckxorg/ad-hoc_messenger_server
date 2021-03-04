@@ -33,6 +33,7 @@ int main() {
         .methods("POST"_method)([&db](const crow::request& req) {
             return key_update_handler(req, db);
         });
+
     CROW_ROUTE(app, "/message/send")
         .methods("POST"_method)([&db](const crow::request& req) {
             return message_send_handler(req, db);
