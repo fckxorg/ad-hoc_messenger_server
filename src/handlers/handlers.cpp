@@ -10,8 +10,8 @@ crow::response user_find_handler(const crow::request& req, Database& db) {
     THROW_BAD_REQUEST_IF(!ValidateRequest(request, "handle"),
                          "Invalid JSON format");
 
-    auto query_result = db.get_collection<User>("users")
-                            .filter_str_eq({{"handle", request["handle"].s()}});
+    auto query_result = db.get_collection<User>("users").filter_str_eq(
+        {{"handle", request["handle"].s()}});
     // auto user_optional = find_user_by_handle(request["handle"].s(), db);
 
     THROW_NOT_FOUND_IF(!query_result.size(), "User not found");
@@ -23,28 +23,27 @@ crow::response user_find_handler(const crow::request& req, Database& db) {
 
     return crow::response(200, response_body.dump());
 }
-/*
-crow::response key_update_handler(const crow::request& req,
-                                  const mongocxx::database& db) {
+
+crow::response key_update_handler(const crow::request& req, Database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
     THROW_BAD_REQUEST_IF(!ValidateRequest(request, "public_key", "handle"),
                          "Invalid JSON format");
 
-    mongocxx::collection users = db["users"];
-    bsoncxx::document::value filter =
-        make_document(kvp("handle", request["handle"].s()));
-    bsoncxx::document::value update = make_document(kvp(
-        "$set", make_document(kvp("public_key", request["public_key"].s()))));
+    auto users = db.get_collection<User>("users");
+    auto query_result = db.get_collection<User>("users").filter_str_eq(
+        {{"handle", request["handle"].s()}});
+    THROW_NOT_FOUND_IF(!query_result.size(), "User not found");
 
-    auto maybe_result =
-        users.find_one_and_update(std::move(filter), std::move(update));
+    User old_user_data = query_result[0];
+    User new_user_data = query_result[0];
+    new_user_data.set_public_key(request["public_key"].s());
 
-    THROW_NOT_FOUND_IF(!maybe_result, "User not found");
+    users.update_one(old_user_data, new_user_data);
 
     return crow::response(200);
 }
-
+/*
 // time format in json: %Y-%m-%d %H:%M:%S
 crow::response message_send_handler(const crow::request& req,
                                     const mongocxx::database& db) {

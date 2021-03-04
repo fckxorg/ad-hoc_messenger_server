@@ -97,6 +97,11 @@ class Collection {
         auto bson_doc = doc.serialize();
         col.delete_one(std::move(bson_doc));
     }
+
+    void update_one(MappingType& old_doc, MappingType& new_doc) {
+       delete_one(old_doc);
+       insert_one(new_doc);
+    }
 };
 
 class Database {

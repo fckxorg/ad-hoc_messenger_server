@@ -96,14 +96,14 @@ TEST_F(HandlerTestFixture, UserFindHandler_UserNotFound) {
 //              KeyUpdateHandler Tests
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //=================================================
-/*
+
 TEST_F(HandlerTestFixture, KeyUpdateHandler_Success) {
     crow::request test_request{};
     test_request.body =
         "{\"handle\": \"@fckxorg\", \"public_key\": \"new_key\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(key_update_handler(test_request, *test_db).code, 200);
+    EXPECT_EQ(key_update_handler(test_request, *db).code, 200);
 }
 
 TEST_F(HandlerTestFixture, KeyUpdateHandle_InvalidJSON) {
@@ -112,7 +112,7 @@ TEST_F(HandlerTestFixture, KeyUpdateHandle_InvalidJSON) {
         "{\"handle\": \"@fckxorg\", \"pubic_key\": \"new_key\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(key_update_handler(test_request, *test_db).code, 400);
+    EXPECT_EQ(key_update_handler(test_request, *db).code, 400);
 }
 
 TEST_F(HandlerTestFixture, KeyUpdateHandler_UserNotFound) {
@@ -121,7 +121,7 @@ TEST_F(HandlerTestFixture, KeyUpdateHandler_UserNotFound) {
         "{\"handle\": \"@fckxor\", \"public_key\": \"new_key\"}";
     test_request.method = "POST"_method;
 
-    EXPECT_EQ(key_update_handler(test_request, *test_db).code, 404);
+    EXPECT_EQ(key_update_handler(test_request, *db).code, 404);
 }
 
 //=================================================
@@ -129,7 +129,7 @@ TEST_F(HandlerTestFixture, KeyUpdateHandler_UserNotFound) {
 //              MessageSendHandler Tests
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //=================================================
-
+/*
 TEST_F(HandlerTestFixture, MessageSendHandler_Success) {
     crow::request test_request{};
     test_request.body =
