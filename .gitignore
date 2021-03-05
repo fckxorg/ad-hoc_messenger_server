@@ -2,4 +2,6 @@ build/*
 .vscode/*
 .idea/*
 *vgcore
+compile_commands.json
+.cache/*
 
