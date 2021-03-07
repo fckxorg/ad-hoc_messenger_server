@@ -69,4 +69,5 @@ void Message::deserialize(const bsoncxx::document::view& data) {
     set_reciever(get_string_from_bson(data, "reciever"));
     set_payload(get_string_from_bson(data, "paylaod"));
     set_encrypted_by(get_string_from_bson(data, "encrypted_by"));
+    set_datetime(get_time_from_bson(data, "datetime"));
 }

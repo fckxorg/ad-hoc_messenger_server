@@ -3,6 +3,7 @@
 
 #include <bsoncxx/builder/basic/document.hpp>
 #include <bsoncxx/builder/basic/kvp.hpp>
+#include <bsoncxx/builder/basic/sub_document.hpp>
 #include <bsoncxx/json.hpp>
 #include <bsoncxx/stdx/string_view.hpp>
 #include <cassert>
@@ -29,6 +30,12 @@ class DBMapping {
                                      const std::string& property) {
         return std::string(
             bsoncxx::stdx::string_view(doc[property].get_utf8()).data());
+    }
+
+    std::chrono::system_clock::time_point get_time_from_bson(
+        const bsoncxx::document::view& doc, const std::string& property) {
+        return static_cast<std::chrono::system_clock::time_point>(
+            doc[property].get_date());
     }
 
    public:
@@ -59,6 +66,7 @@ template <typename MappingType>
 class Collection {
    private:
     mongocxx::collection col;
+    bsoncxx::builder::basic::document filter;
 
    public:
     Collection() = delete;
@@ -66,16 +74,36 @@ class Collection {
 
     Collection(const mongocxx::collection& other) { col = other; }
 
-    std::vector<MappingType> filter_str_eq(
+    Collection<MappingType>& filter_str_eq(
         std::unordered_map<std::string, std::string> query) {
-        bsoncxx::builder::basic::document query_builder{};
-
         for (auto& pair : query) {
-            query_builder.append(
+            filter.append(
                 bsoncxx::builder::basic::kvp(pair.first, pair.second));
         }
 
-        mongocxx::cursor cursor = col.find(query_builder.extract());
+        return *this;
+    }
+
+    Collection<MappingType>& filter_time_between(
+        std::chrono::system_clock::time_point& from,
+        std::chrono::system_clock::time_point& to) {
+        // converting time to bson time format
+        bsoncxx::types::b_date bson_from{from};
+        bsoncxx::types::b_date bson_to{to};
+
+        filter.append(kvp(
+            "datetime",
+            [bson_from, bson_to](bsoncxx::builder::basic::sub_document subdoc) {
+                subdoc.append(bsoncxx::builder::basic::kvp("$gt", bson_from),
+                              bsoncxx::builder::basic::kvp("$lte", bson_to));
+            }));
+
+        return *this;
+    }
+
+    std::vector<MappingType> apply() {
+        mongocxx::cursor cursor = col.find(filter.extract());
+        filter = {};
 
         std::vector<MappingType> result{};
 
@@ -99,8 +127,8 @@ class Collection {
     }
 
     void update_one(MappingType& old_doc, MappingType& new_doc) {
-       delete_one(old_doc);
-       insert_one(new_doc);
+        delete_one(old_doc);
+        insert_one(new_doc);
     }
 };
 

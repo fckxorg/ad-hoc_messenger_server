@@ -38,6 +38,11 @@ int main() {
         .methods("POST"_method)([&db](const crow::request& req) {
             return message_send_handler(req, db);
         });
+    
+    CROW_ROUTE(app, "/message/get")
+        .methods("POST"_method)([&db](const crow::request& req) {
+            return message_get_handler(req, db);
+        });  
 
     app.port(5000).multithreaded().run();
 }
