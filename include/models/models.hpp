@@ -38,7 +38,7 @@ class Message : public DBMapping<5> {
     Message(const std::string& sender, const std::string& reciever,
             const std::string& payload, const std::string& encrypted_by,
             const std::chrono::system_clock::time_point& timestamp);
-    Message() =default;
+    Message() = default;
 
     void set_sender(const std::string& data);
     void set_reciever(const std::string& data);
