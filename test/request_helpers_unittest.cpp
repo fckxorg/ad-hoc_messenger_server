@@ -100,6 +100,11 @@ TEST(str_to_tp, Failure) {
     ASSERT_EQ(str_to_tp(timestamp).has_value(), false);
 }
 
+TEST(tp_to_str, Success) {
+    const std::string timestamp = "2020-02-20 23:42:15";
+    ASSERT_EQ(tp_to_str(*str_to_tp(timestamp)), timestamp);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
