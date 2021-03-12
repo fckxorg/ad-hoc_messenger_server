@@ -91,7 +91,7 @@ class Collection {
         bsoncxx::types::b_date bson_from{from};
         bsoncxx::types::b_date bson_to{to};
 
-        filter.append(kvp(
+        filter.append(bsoncxx::builder::basic::kvp(
             "datetime",
             [bson_from, bson_to](bsoncxx::builder::basic::sub_document subdoc) {
                 subdoc.append(bsoncxx::builder::basic::kvp("$gt", bson_from),
@@ -103,7 +103,6 @@ class Collection {
 
     std::vector<MappingType> apply() {
         mongocxx::cursor cursor = col.find(filter.extract());
-        filter = {};
 
         std::vector<MappingType> result{};
 
@@ -112,6 +111,8 @@ class Collection {
             mapping.deserialize(doc);
             result.push_back(mapping);
         }
+
+        filter = {};
 
         return result;
     }

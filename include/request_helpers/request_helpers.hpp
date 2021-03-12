@@ -21,4 +21,6 @@ bool ValidateRequest(const crow::json::rvalue& request, Args... args) {
 std::optional<std::chrono::system_clock::time_point> str_to_tp(
     const std::string& time_string);
 
+std::string tp_to_str(const std::chrono::system_clock::time_point& tp);
+
 #endif
