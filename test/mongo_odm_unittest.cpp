@@ -19,7 +19,11 @@ using bsoncxx::builder::basic::make_document;
 
 class MappingMock : public DBMapping<2> {
    public:
-    bsoncxx::document::value serialize() override { return make_document(); }
+    bsoncxx::document::value serialize() override {
+        return make_document(
+            kvp("string", std::get<0>(get(0))),
+            kvp("date", bsoncxx::types::b_date(std::get<1>(get(1)))));
+    }
     void deserialize(const bsoncxx::document::view& data) override {}
 };
 
@@ -46,6 +50,23 @@ TEST(DBMappingClass, GetAndSetTime) {
     auto result = std::get<1>(mock_object.get(0));
 
     EXPECT_EQ(result, sample);
+}
+
+TEST(DatabaseClass, get_collection_v1) {
+    auto col = db->get_collection<MappingMock>("mock");
+}
+
+TEST(DatabaseClass, get_Collection_v2) {
+    auto col = db->get_collection<MappingMock>(std::string("mock"));
+}
+
+TEST(CollectionClass, insert_one) {
+    MappingMock mock_object{};
+    mock_object.set("test", 0);
+    mock_object.set(std::chrono::system_clock::now(), 1);
+
+    auto col = db->get_collection<MappingMock>("mock");
+    col.insert_one(mock_object);
 }
 
 int main(int argc, char** argv) {
