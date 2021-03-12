@@ -1,9 +1,11 @@
+#include <chrono>
 #define CROW_MAIN_
-#include <gtest/gtest.h>
-#include <crow_all.h>
-#include <cstring>
-
 #include "request_helpers.hpp"
+
+#include <crow_all.h>
+#include <gtest/gtest.h>
+
+#include <cstring>
 
 //=================================================
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -78,6 +80,25 @@ TEST(ValidateRequest, NoRequiredFieldAndInvalidJSON) {
     EXPECT_EQ(ValidateRequest(json_rvalue, "handle", "public_key"), false);
 }
 
+TEST(str_to_tp, Success) {
+    const std::string timestamp = "2021-02-20 23:42:15";
+    std::tm time = {.tm_sec = 15,
+                    .tm_min = 42,
+                    .tm_hour = 23,
+                    .tm_mday = 20,
+                    .tm_mon = 1,
+                    .tm_year = 121};
+
+    auto desired_tp = std::chrono::system_clock::from_time_t(std::mktime(&time));
+
+    ASSERT_EQ(desired_tp, *str_to_tp(timestamp));
+}
+
+TEST(str_to_tp, Failure) {
+    const std::string timestamp = "2021-02-20-23-42-15"; 
+
+    ASSERT_EQ(str_to_tp(timestamp).has_value(), false);
+}
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
