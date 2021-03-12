@@ -28,7 +28,7 @@ void User::deserialize(const bsoncxx::document::view& data) {
     set_public_key(get_string_from_bson(data, "public_key"));
 }
 
-bool User::exists(std::string handle, Database& db) {
+bool User::exists(const std::string& handle, Database& db) {
     auto query_result = db.get_collection<User>("users")
                             .filter_str_eq({{"handle", handle}})
                             .apply();
@@ -40,6 +40,16 @@ bool User::exists(std::string handle, Database& db) {
 //                      Message Database Model
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //============================================================================
+
+Message::Message(const std::string& sender, const std::string& reciever,
+                 const std::string& payload, const std::string& encrypted_by,
+                 const std::chrono::system_clock::time_point& timestamp) {
+    set_sender(sender);
+    set_reciever(reciever);
+    set_payload(payload);
+    set_encrypted_by(encrypted_by);
+    set_datetime(timestamp);
+}
 
 void Message::set_sender(const std::string& data) { set(data, SENDER); }
 void Message::set_reciever(const std::string& data) { set(data, RECIEVER); }
@@ -69,7 +79,6 @@ bsoncxx::document::value Message::serialize() {
 }
 
 void Message::deserialize(const bsoncxx::document::view& data) {
-    // TODO datetime gathering
     // TODO error-checking
 
     set_sender(get_string_from_bson(data, "sender"));

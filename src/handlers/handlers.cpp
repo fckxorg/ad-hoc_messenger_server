@@ -61,12 +61,9 @@ crow::response message_send_handler(const crow::request& req, Database& db) {
     auto tp = str_to_tp(request["datetime"].s());
     THROW_BAD_REQUEST_IF(!tp, "Invalid datetime format");
 
-    Message new_message{};
-    new_message.set_sender(request["sender"].s());
-    new_message.set_reciever(request["reciever"].s());
-    new_message.set_payload(request["payload"].s());
-    new_message.set_encrypted_by(request["encrypted_by"].s());
-    new_message.set_datetime(*tp);
+    Message new_message{request["sender"].s(), request["reciever"].s(),
+                        request["payload"].s(), request["encrypted_by"].s(),
+                        *tp};
 
     messages.insert_one(new_message);
 

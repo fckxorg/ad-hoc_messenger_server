@@ -1,6 +1,7 @@
 #ifndef MODELS_HPP
 #define MODELS_HPP
 
+#include <chrono>
 #include <variant>
 
 #include "mongo_odm.hpp"
@@ -20,7 +21,7 @@ class User : public DBMapping<3> {
     bsoncxx::document::value serialize() override;
     void deserialize(const bsoncxx::document::view& data) override;
 
-    static bool exists(std::string handle, Database& db);
+    static bool exists(const std::string& handle, Database& db);
 };
 
 class Message : public DBMapping<5> {
@@ -34,6 +35,11 @@ class Message : public DBMapping<5> {
     };
 
    public:
+    Message(const std::string& sender, const std::string& reciever,
+            const std::string& payload, const std::string& encrypted_by,
+            const std::chrono::system_clock::time_point& timestamp);
+    Message() =default;
+
     void set_sender(const std::string& data);
     void set_reciever(const std::string& data);
     void set_payload(const std::string& data);
