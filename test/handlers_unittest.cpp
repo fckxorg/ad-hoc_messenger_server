@@ -1,6 +1,5 @@
+#include "request_helpers.hpp"
 #define CROW_MAIN_
-
-#include "handlers.hpp"
 
 #include <crow_all.h>
 #include <gtest/gtest.h>
@@ -14,20 +13,16 @@
 #include <mongocxx/stdx.hpp>
 #include <mongocxx/uri.hpp>
 
+#include "handlers.hpp"
 #include "models.hpp"
 #include "mongo_odm.hpp"
-
-using bsoncxx::builder::basic::document;
-using bsoncxx::builder::basic::kvp;
-using bsoncxx::builder::basic::make_document;
-
-// shared mongo instance
-mongocxx::instance instance{};
 
 class HandlerTestFixture : public ::testing::Test {
    private:
     User fckxorg;
     User coffee;
+    Message fckxorg_message;
+    Message coffee_message;
 
    protected:
     Database* db;
@@ -43,15 +38,30 @@ class HandlerTestFixture : public ::testing::Test {
         coffee.set_handle("@COFF33");
         coffee.set_public_key("coffee_key");
 
+        fckxorg_message =
+            Message("@fckxorg", "@COFF33", "Ayyy LMAO", "@fckxorg",
+                    *str_to_tp("2021-02-20 21:40:32"));
+
+        coffee_message = Message("@COFF33", "@fckxorg", "Well, fuck...",
+                                 "@fckxorg", *str_to_tp("2021-02-20 21:41:25"));
+
         auto users = db->get_collection<User>("users");
         users.insert_one(fckxorg);
         users.insert_one(coffee);
+
+        auto messages = db->get_collection<Message>("messages");
+        messages.insert_one(fckxorg_message);
+        messages.insert_one(coffee_message);
     }
 
     virtual void TearDown() {
         auto users = db->get_collection<User>("users");
         users.delete_one(fckxorg);
         users.delete_one(coffee);
+
+        auto messages = db->get_collection<Message>("messages");
+        messages.delete_one(fckxorg_message);
+        messages.delete_one(coffee_message);
 
         delete db;
     }
@@ -194,6 +204,71 @@ TEST_F(HandlerTestFixture, MessageSendHandler_EncryptorDoesntExist) {
     test_request.method = "POST"_method;
 
     EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
+}
+
+TEST_F(HandlerTestFixture, MessageGetHandler_Success) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"from\" : \"2021-01-02 21:00:00\", \"to\" : \"2021-04-23 21:00:00\","
+        "\"encryptor\" : \"@fckxorg\","
+        "\"partner\" : \"@COFF33\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(message_get_handler(test_request, *db).code, 200);
+}
+
+TEST_F(HandlerTestFixture, MessageGetHandler_InvalidJson) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"from\" : \"2021-01-02 21:00:00\", \"to\" : \"2021-04-23 21:00:00\","
+        "\"partner\" : \"@COFF33\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(message_get_handler(test_request, *db).code, 400);
+}
+
+TEST_F(HandlerTestFixture, MessageGetHandler_UserDoesntExist) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"from\" : \"2021-01-02 21:00:00\", \"to\" : \"2021-04-23 21:00:00\","
+        "\"encryptor\" : \"@fkxorg\","
+        "\"partner\" : \"@COF33\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(message_get_handler(test_request, *db).code, 404);
+}
+
+TEST_F(HandlerTestFixture, MessageGetHandler_InvalidTimeFormatFrom) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"from\" : \"2021-01-02-21:00:00\", \"to\" : \"2021-04-23 21:00:00\","
+        "\"encryptor\" : \"@fckxorg\","
+        "\"partner\" : \"@COFF33\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(message_get_handler(test_request, *db).code, 400);
+}
+
+TEST_F(HandlerTestFixture, MessageGetHandler_InvalidTimeFormatTo) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"from\" : \"2021-01-02 21:00:00\", \"to\" : \"2021-04-23-21:00:00\","
+        "\"encryptor\" : \"@fckxorg\","
+        "\"partner\" : \"@COFF33\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(message_get_handler(test_request, *db).code, 400);
+}
+
+TEST_F(HandlerTestFixture, MessageGetHandler_BadTimeBounds) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"from\" : \"2021-04-23 21:00:00\", \"to\" : \"2021-01-02 21:00:00\","
+        "\"encryptor\" : \"@fckxorg\","
+        "\"partner\" : \"@COFF33\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(message_get_handler(test_request, *db).code, 400);
 }
 
 int main(int argc, char** argv) {
