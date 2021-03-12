@@ -85,8 +85,8 @@ class Collection {
     }
 
     Collection<MappingType>& filter_time_between(
-        std::chrono::system_clock::time_point& from,
-        std::chrono::system_clock::time_point& to) {
+        const std::chrono::system_clock::time_point& from,
+        const std::chrono::system_clock::time_point& to) {
         // converting time to bson time format
         bsoncxx::types::b_date bson_from{from};
         bsoncxx::types::b_date bson_to{to};

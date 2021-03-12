@@ -127,6 +127,22 @@ TEST_F(ODMFixture, test_filter_str_equal) {
     ASSERT_EQ(result.size(), 0);
 }
 
+TEST_F(ODMFixture, test_update) {
+    auto col = db->get_collection<MappingMock>("mock");
+    col.insert_one(mock_object);
+    
+    MappingMock new_mock = mock_object;
+    new_mock.set("alter", 0);
+
+    col.update_one(mock_object, new_mock);
+    
+    auto result = col.filter_str_eq({{"string", "alter"}}).apply();
+    ASSERT_EQ(result.size(), 1);
+
+    result = col.filter_str_eq({{"string", "test"}}).apply();
+    ASSERT_EQ(result.size(), 0);
+}
+
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();
