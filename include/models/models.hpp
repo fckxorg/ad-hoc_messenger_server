@@ -19,6 +19,8 @@ class User : public DBMapping<3> {
 
     bsoncxx::document::value serialize() override;
     void deserialize(const bsoncxx::document::view& data) override;
+
+    static bool exists(std::string handle, Database& db);
 };
 
 class Message : public DBMapping<5> {

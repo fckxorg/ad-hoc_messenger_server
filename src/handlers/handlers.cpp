@@ -11,10 +11,7 @@ crow::response user_find_handler(const crow::request& req, Database& db) {
     auto query_result = db.get_collection<User>("users")
                             .filter_str_eq({{"handle", request["handle"].s()}})
                             .apply();
-    // auto user_optional = find_user_by_handle(request["handle"].s(), db);
-
     THROW_NOT_FOUND_IF(!query_result.size(), "User not found");
-    // THROW_NOT_FOUND_IF(!user_optional, "User not found");
 
     User found_user = query_result[0];
     crow::json::wvalue response_body{};
@@ -45,7 +42,6 @@ crow::response key_update_handler(const crow::request& req, Database& db) {
     return crow::response(200);
 }
 
-// time format in json: %Y-%m-%d %H:%M:%S
 crow::response message_send_handler(const crow::request& req, Database& db) {
     crow::json::rvalue request = crow::json::load(req.body);
 
@@ -54,19 +50,11 @@ crow::response message_send_handler(const crow::request& req, Database& db) {
                          "encrypted_by"),
         "Invalid JSON format");
 
-    // checking users exist
-    auto users = db.get_collection<User>("users");
     auto messages = db.get_collection<Message>("messages");
 
-    auto sender_query =
-        users.filter_str_eq({{"handle", request["sender"].s()}}).apply();
-    auto reciever_query =
-        users.filter_str_eq({{"handle", request["reciever"].s()}}).apply();
-    auto encryptor_query =
-        users.filter_str_eq({{"handle", request["encrypted_by"].s()}}).apply();
-
-    bool not_found = sender_query.empty() || reciever_query.empty() ||
-                     encryptor_query.empty();
+    bool not_found = !User::exists(request["sender"].s(), db) ||
+                     !User::exists(request["reciever"].s(), db) ||
+                     !User::exists(request["encrypted_by"].s(), db);
 
     THROW_NOT_FOUND_IF(not_found, "User not found");
 
@@ -92,13 +80,8 @@ crow::response message_get_handler(const crow::request& req, Database& db) {
         !ValidateRequest(request, "encryptor", "partner", "from", "to"),
         "Invalid JSON");
 
-    auto users = db.get_collection<User>("users");
-
-    auto encryptor_query =
-        users.filter_str_eq({{"handle", request["encryptor"].s()}}).apply();
-    auto partner_query =
-        users.filter_str_eq({{"handle", request["partner"].s()}}).apply();
-    bool not_found = encryptor_query.empty() || partner_query.empty();
+    bool not_found = !User::exists(request["encryptor"].s(), db) ||
+                     !User::exists(request["partner"].s(), db);
 
     THROW_NOT_FOUND_IF(not_found, "User not found");
 
@@ -150,6 +133,6 @@ crow::response message_get_handler(const crow::request& req, Database& db) {
 
     crow::json::wvalue response_body = {};
     response_body["messages"] = std::move(serialized_messages);
- 
+
     return crow::response(200, response_body.dump());
 }

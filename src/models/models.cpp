@@ -28,6 +28,13 @@ void User::deserialize(const bsoncxx::document::view& data) {
     set_public_key(get_string_from_bson(data, "public_key"));
 }
 
+bool User::exists(std::string handle, Database& db) {
+    auto query_result = db.get_collection<User>("users")
+                            .filter_str_eq({{"handle", handle}})
+                            .apply();
+    return query_result.size();
+}
+
 //============================================================================
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      Message Database Model
