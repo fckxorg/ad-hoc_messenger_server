@@ -44,6 +44,10 @@ int main() {
             return message_get_handler(req, db);
         });  
 
+    CROW_ROUTE(app, "/user/register")
+        .methods("POST"_method)([&db](const crow::request& req) {
+            return user_register_handler(req, db);
+        });  
     app.port(5000).multithreaded().run();
 }
 

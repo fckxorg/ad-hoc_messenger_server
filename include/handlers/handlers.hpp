@@ -26,4 +26,5 @@ crow::response user_find_handler(const crow::request& req, Database& db);
 crow::response key_update_handler(const crow::request& req, Database& db);
 crow::response message_send_handler(const crow::request& req, Database& db);
 crow::response message_get_handler(const crow::request& req, Database& db);
+crow::response user_register_handler(const crow::request& req, Database& db);
 #endif

@@ -1,5 +1,7 @@
 #include "handlers.hpp"
 
+#include <crow_all.h>
+
 #include "request_helpers.hpp"
 
 crow::response user_find_handler(const crow::request& req, Database& db) {
@@ -132,4 +134,24 @@ crow::response message_get_handler(const crow::request& req, Database& db) {
     response_body["messages"] = std::move(serialized_messages);
 
     return crow::response(200, response_body.dump());
+}
+
+crow::response user_register_handler(const crow::request& req, Database& db) {
+    crow::json::rvalue request = crow::json::load(req.body);
+
+    THROW_BAD_REQUEST_IF(
+        !ValidateRequest(request, "handle", "email", "public_key"),
+        "Invalid JSON");
+    THROW_BAD_REQUEST_IF(User::exists(request["handle"].s(), db),
+                         "User already exists");
+
+    User new_user;
+    new_user.set_email(request["email"].s());
+    new_user.set_handle(request["handle"].s());
+    new_user.set_public_key(request["handle"].s());
+
+    auto users = db.get_collection<User>("users");
+    users.insert_one(new_user);
+
+    return crow::response(200);
 }

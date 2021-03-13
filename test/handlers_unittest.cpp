@@ -206,6 +206,12 @@ TEST_F(HandlerTestFixture, MessageSendHandler_EncryptorDoesntExist) {
     EXPECT_EQ(message_send_handler(test_request, *db).code, 404);
 }
 
+//=================================================
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//              MessageGetHandler Tests
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//=================================================
+
 TEST_F(HandlerTestFixture, MessageGetHandler_Success) {
     crow::request test_request{};
     test_request.body =
@@ -269,6 +275,52 @@ TEST_F(HandlerTestFixture, MessageGetHandler_BadTimeBounds) {
     test_request.method = "POST"_method;
 
     EXPECT_EQ(message_get_handler(test_request, *db).code, 400);
+}
+
+//=================================================
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//              UserRegisterHandler Tests
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//=================================================
+
+TEST_F(HandlerTestFixture, UserRegisterHandler_Success) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"handle\":\"@boristab\", \"email\":\"test@test.com\", "
+        "\"public_key\":\"omg\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(user_register_handler(test_request, *db).code, 200);
+
+    auto users = db->get_collection<User>("users");
+    EXPECT_TRUE(User::exists("boristab", *db));
+
+    User boristab{};
+    boristab.set_handle("@boristab");
+    boristab.set_email("test@test.com");
+    boristab.set_public_key("omg");
+
+    users.delete_one(boristab);
+}
+
+TEST_F(HandlerTestFixture, UserRegisterHandler_InvalidJson) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"handle\":\"@boristab\", \"eail\":\"test@test.com\", "
+        "\"public_key\":\"omg\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(user_register_handler(test_request, *db).code, 400);
+}
+
+TEST_F(HandlerTestFixture, UserRegisterHandler_UserExists) {
+    crow::request test_request{};
+    test_request.body =
+        "{\"handle\":\"@fckxorg\", \"email\":\"test@test.com\", "
+        "\"public_key\":\"omg\"}";
+    test_request.method = "POST"_method;
+
+    EXPECT_EQ(user_register_handler(test_request, *db).code, 400);
 }
 
 int main(int argc, char** argv) {
