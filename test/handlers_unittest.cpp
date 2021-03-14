@@ -293,7 +293,7 @@ TEST_F(HandlerTestFixture, UserRegisterHandler_Success) {
     EXPECT_EQ(user_register_handler(test_request, *db).code, 200);
 
     auto users = db->get_collection<User>("users");
-    EXPECT_TRUE(User::exists("boristab", *db));
+    EXPECT_TRUE(User::exists("@boristab", *db));
 
     User boristab{};
     boristab.set_handle("@boristab");
